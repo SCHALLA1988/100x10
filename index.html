@@ -203,6 +203,16 @@ textarea{resize:vertical;line-height:1.4}
       <label for="f-note">Notiz<input id="f-note" type="text" placeholder="Wetter, Gefühl, Strecke"></label>
       <div class="btns"><button class="btn" type="submit" id="f-save">Speichern</button><button class="btn ghost" type="button" id="f-clear">Leeren</button><button class="btn ghost" type="button" id="f-del" hidden>Tag löschen</button><span class="msg" id="f-msg" role="status"></span></div>
     </form>
+    <h2 style="margin-top:36px">Song des Tages eintragen</h2>
+    <form id="sf" autocomplete="off">
+      <div class="row">
+        <label for="s-date">Datum<input id="s-date" type="date" required></label>
+        <label for="s-title">Titel<input id="s-title" type="text" maxlength="120" required></label>
+        <label for="s-artist">Künstler<input id="s-artist" type="text" maxlength="120" required></label>
+      </div>
+      <label for="s-url">Apple-Music-Link (optional)<input id="s-url" type="url" inputmode="url" placeholder="https://music.apple.com/de/album/…"></label>
+      <div class="btns"><button class="btn" type="submit" id="s-save">Song speichern</button><button class="btn ghost" type="button" id="s-clear">Leeren</button><button class="btn ghost" type="button" id="s-del" hidden>Song löschen</button><span class="msg" id="s-msg" role="status"></span></div>
+    </form>
   </div></section>
   <section id="raster"><div class="wrap">
     <h2>Alle 100 Tage</h2>
@@ -248,15 +258,6 @@ textarea{resize:vertical;line-height:1.4}
       <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;background:transparent;display:block;margin:0 auto" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/de/playlist/100x10test/pl.u-d2b05gLIGbzBmxP"></iframe>
     </div>
     <div class="prog" id="prog" hidden></div>
-    <form id="sf" autocomplete="off">
-      <div class="row">
-        <label for="s-date">Datum<input id="s-date" type="date" required></label>
-        <label for="s-title">Titel<input id="s-title" type="text" maxlength="120" required></label>
-        <label for="s-artist">Künstler<input id="s-artist" type="text" maxlength="120" required></label>
-      </div>
-      <label for="s-url">Apple-Music-Link (optional)<input id="s-url" type="url" inputmode="url" placeholder="https://music.apple.com/de/album/…"></label>
-      <div class="btns"><button class="btn" type="submit" id="s-save">Song speichern</button><button class="btn ghost" type="button" id="s-clear">Leeren</button><button class="btn ghost" type="button" id="s-del" hidden>Song löschen</button><span class="msg" id="s-msg" role="status"></span></div>
-    </form>
     <div class="btns" style="margin-top:16px"><button class="btn ghost" type="button" id="s-copy">Playlist als Liste kopieren</button><button class="btn ghost" type="button" id="s-copy2">Liste mit Links kopieren</button><span class="msg" id="s-copymsg" role="status"></span></div>
     <p class="sub" id="s-tip" style="margin-top:12px">So wird daraus eine Apple-Music-Playlist: Liste mit Links kopieren, in Apple Music eine neue Playlist anlegen und die Songs über den Link oder die Suche hinzufügen. Direkt anlegen kann diese Seite die Playlist nicht.</p>
     <div class="plist" id="songs"></div>
