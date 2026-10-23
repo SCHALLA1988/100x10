@@ -244,6 +244,9 @@ textarea{resize:vertical;line-height:1.4}
     <h2>Song des Tages</h2>
     <p class="sub" id="song-sub">Pro Tag ein Song, zusammen die Playlist der 100 Tage.</p>
     <div class="hs" id="hs" hidden></div>
+    <div class="card reveal" style="padding:16px;margin:4px 0 20px">
+      <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;background:transparent;display:block;margin:0 auto" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/de/playlist/100x10test/pl.u-d2b05gLIGbzBmxP"></iframe>
+    </div>
     <div class="prog" id="prog" hidden></div>
     <form id="sf" autocomplete="off">
       <div class="row">
@@ -505,7 +508,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
       hs.innerHTML='<div class="label">'+(isT?'Song des Tages':'Zuletzt eingetragen')+' · '+(hin?'Tag '+hn:'Vorlauf')+' · '+esc(hd?fmtDate(hd):hsong.date)+(hin&&MSNOTE[hn]?' · '+esc(MSNOTE[hn]):'')+'</div><div class="t">'+esc(hsong.title)+'</div><div class="a">'+esc(hsong.artist)+'</div>'
         +(hrun?'<div class="mono msg">Dazu gelaufen: '+esc(fmtKm(hrun.km))+' km'+(hrun.time_s?' · '+esc(fmtPace(hrun.time_s/hrun.km))+' /km':'')+'</div>':'')
         +(hin&&hrun&&hrun.km>=10?'<div class="done">Tag '+hn+' geschafft: Lauf und Song sind drin</div>':'')
-        +(hsong.url&&APPLE_RE.test(hsong.url)?'<div><a class="ext" href="'+esc(hsong.url)+'" target="_blank" rel="noopener noreferrer">In Apple Music öffnen</a></div>':'');
+        +(hsong.url&&APPLE_RE.test(hsong.url)?'<div style="margin-top:10px"><iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="175" style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;background:transparent" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="'+esc(hsong.url.replace('https://music.apple.com/','https://embed.music.apple.com/'))+'"></iframe></div>':'');
       hs.hidden=false;
     }else hs.hidden=true;
     $('prog').hidden=!sl.length;
@@ -520,7 +523,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('s-copy').hidden=!sl.length;$('s-copy2').hidden=!sl.length;
     // Formulare nur für Editoren
     var show=state.canEdit;
-    $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Apple Music lässt sich hier nicht einbetten. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann öffnet er sich per Klick.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
+    $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann erscheint der Player oben.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
     $('s-tip').hidden=!show;
     $('f').hidden=!show;$('sf').hidden=!show;$('nav-eintrag').hidden=!show;
     $('eintrag').hidden=!show&&state.ready;
