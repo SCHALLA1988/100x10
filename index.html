@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>100 Tage 10 km</title>
+<meta name="description" content="100 Tage, jeden Tag mindestens 10 km. Live-Tracker der Streak von Michael in Berlin, 01.11.2026 bis 08.02.2027.">
+<style>
+/* Konzept: helles Dashboard, Ultramarin als einzige Akzentfarbe mit Abstufungen, Limette nur als winziger Lichtpunkt, Systemschrift, feste Helligkeit ohne Dunkelmodus */
+:root{
+  --bg:#F2F1F6;--card:#FFFFFF;--surface:#F7F6FA;--track:#EEEDF3;
+  --fg:#0E0D12;--soft:#55545F;--mute:#6E6D78;--deco:#A3A2AD;--line:rgba(20,16,48,.07);
+  --acc:#3E12E3;--acc-light:#5B36F0;--acc-ink:#2E0BB0;--acc-tint:#ECE8FE;
+  --r1:#DCD5FC;--r2:#B8A9F8;--r3:#8C74F2;--r4:#6242EA;--r5:#3E12E3;--r-empty:#EEEDF3;
+  --lime:#D8FF4F;--warn:#C2410C;--warn-bg:#FFF1E6;--red:#FF3B30;--neutral:#CFCDDA;
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue','Segoe UI',Roboto,Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue','Segoe UI',Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:
+    radial-gradient(900px 600px at 100% 0%,#ffffff 0%,rgba(255,255,255,0) 60%),
+    var(--bg);
+  color:var(--fg);font-family:var(--body);-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.5}
+a{color:var(--acc-ink);text-decoration:none}a:hover{color:var(--acc)}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:20px}
+.brand{font-family:var(--display);font-weight:650;font-size:19px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(216,255,79,.25)}
+.nav{display:flex;flex-wrap:wrap;gap:4px 4px;font-size:14px;color:var(--mute)}
+.nav a{padding:7px 12px;border-radius:999px;white-space:nowrap}
+.nav a:hover{background:var(--surface);color:var(--fg)}
+.thsp{display:inline-block;width:.2em}
+.label{font-size:12.5px;letter-spacing:.01em;color:var(--mute)}
+.hero{padding-block:56px 32px}
+h1{margin:14px 0 0;font-family:var(--display);font-weight:650;letter-spacing:-.04em;font-size:clamp(44px,8vw,88px);line-height:.98;text-wrap:balance}
+.lead{margin:20px 0 0;max-width:560px;font-size:15.5px;line-height:1.5;color:var(--soft)}
+.pills{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.pill{background:var(--acc);color:#fff;font-family:var(--display);font-weight:600;font-size:14.5px;letter-spacing:-.005em;padding:9px 18px 9px 14px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--lime)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding-bottom:48px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:6px;min-width:0;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 12px 32px -18px rgba(30,20,90,.16);transition:transform .22s cubic-bezier(.2,.9,.25,1),box-shadow .22s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 18px 40px -16px rgba(30,20,90,.22)}
+.tile b{font-family:var(--display);font-weight:650;letter-spacing:-.03em;font-size:38px;line-height:1}
+section{padding-block:40px 56px}
+h2{margin:0 0 6px;font-family:var(--display);font-weight:650;letter-spacing:-.026em;font-size:22px}
+.sub{margin:0 0 24px;font-size:13.5px;color:var(--mute);max-width:560px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:22px;display:flex;flex-direction:column;gap:16px;min-width:0;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 12px 32px -18px rgba(30,20,90,.16);transition:transform .22s cubic-bezier(.2,.9,.25,1),box-shadow .22s}
+.card:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 18px 40px -16px rgba(30,20,90,.22)}
+.card .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.big{font-family:var(--display);font-weight:650;letter-spacing:-.03em;font-size:42px;line-height:1;margin-top:4px}
+.big small{font-size:18px;color:var(--mute);font-weight:600;letter-spacing:0}
+.tag{font-size:12.5px;border-radius:999px;padding:5px 12px;white-space:nowrap;background:var(--surface);color:var(--soft)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
+.kv .v{font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
+.note{font-size:13.5px;color:var(--soft);overflow-wrap:anywhere}
+.edit{align-self:flex-start;background:var(--surface);border:0;color:var(--soft);font:inherit;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer}
+.edit:hover{background:var(--acc-tint);color:var(--acc-ink)}
+.empty{border:1px dashed var(--line);border-radius:20px;padding:32px;color:var(--mute);background:var(--surface)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:10px;border:2px solid transparent;background:var(--r-empty);color:var(--neutral);font-variant-numeric:tabular-nums}
+.cell.done{background:var(--r5);color:#fff}
+.cell.short{background:var(--warn-bg);color:var(--warn)}
+.cell.missed{background:var(--track);color:var(--deco)}
+.cell.today{background:var(--card);border-color:var(--acc);color:var(--acc)}
+.cell.ms{outline:2px solid var(--fg);outline-offset:-4px}
+.cell.best{outline:2px solid var(--lime);outline-offset:-3px}
+.legend{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--mute)}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border-radius:4px;border:2px solid transparent}
+.ms-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.ms-row>div{padding:18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.ms-row b{font-family:var(--display);font-weight:650;letter-spacing:-.02em;font-size:30px;line-height:1;white-space:nowrap}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.cmp b{font-family:var(--display);font-weight:650;letter-spacing:-.03em;font-size:36px;line-height:1}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.rules h3{margin:0 0 6px;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:-.01em}
+.rules p{margin:0;font-size:14px;line-height:1.45;color:var(--soft)}
+form{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:22px;display:grid;gap:16px;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 12px 32px -18px rgba(30,20,90,.16)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--mute)}
+input,textarea,select{background:var(--surface);border:1px solid var(--line);color:var(--fg);font-family:var(--body);font-size:16px;padding:10px 13px;min-width:0;width:100%;border-radius:14px}
+input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{background:var(--acc);color:#fff;border:0;font-family:var(--body);font-weight:600;font-size:14.5px;letter-spacing:0;padding:11px 20px;border-radius:999px;cursor:pointer;transition:transform .06s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--surface);color:var(--fg)}
+.btn.ghost:hover{background:var(--acc-tint);color:var(--acc-ink)}
+.msg{font-size:13.5px;color:var(--mute)}
+.msg.err{color:var(--warn)}
+.hs{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:26px 24px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 12px 32px -18px rgba(30,20,90,.16)}
+.hs.today{box-shadow:0 0 0 2px var(--acc),0 12px 32px -18px rgba(30,20,90,.16)}
+.hs .t{font-family:var(--display);font-weight:650;letter-spacing:-.03em;font-size:clamp(28px,5vw,46px);line-height:1.02;overflow-wrap:anywhere}
+.hs .a{font-size:16px;color:var(--soft)}
+.hs .done{font-size:13px;color:var(--acc)}
+.prog{display:flex;align-items:center;gap:14px;margin:0 0 20px;flex-wrap:wrap}
+.bar{flex:1;height:8px;background:var(--track);border-radius:999px;position:relative;min-width:140px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:999px}
+.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--neutral)}
+.plist{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.prow{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:4px 16px;padding:14px 18px;border-bottom:1px solid var(--line);align-items:center;border-left:4px solid transparent}
+.prow:last-child{border-bottom:0}
+.prow.ms{border-left:4px solid var(--acc);background:var(--acc-tint)}
+.prow .t{font-weight:600;font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+.prow .ac{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ext{font-size:13px;color:var(--acc);text-decoration:underline;text-underline-offset:3px}
+.ext:hover{color:var(--acc-ink)}
+.card.ev{box-shadow:0 0 0 2px var(--acc),0 12px 32px -18px rgba(30,20,90,.16)}
+.evname{font-family:var(--display);font-weight:650;letter-spacing:-.01em;font-size:22px;line-height:1.1;color:var(--acc-ink);margin-top:2px;overflow-wrap:anywhere}
+.tag.ev{background:var(--acc-tint);color:var(--acc-ink)}
+.tags{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.loc{font-size:13px;color:var(--mute)}
+.alert{background:var(--warn-bg);border-radius:20px;color:var(--warn);padding:14px 20px;margin-bottom:32px;font-size:14.5px}
+a.btn{display:inline-block;text-decoration:none}
+.card form{border:0;padding:0;box-shadow:none;background:none}
+@media (max-width:640px){.prow{grid-template-columns:minmax(0,1fr) auto}.prow .n{grid-column:1/-1}}
+footer{padding-block:36px}
+@media (prefers-reduced-motion:no-preference){.cell{transition:background .2s}}
+.fin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.pass{background:var(--card);border:1px solid var(--line);border-radius:28px;display:flex;flex-direction:column;min-width:0;box-shadow:0 0 0 2px var(--acc-tint),0 12px 32px -18px rgba(30,20,90,.16);transition:transform .22s cubic-bezier(.2,.9,.25,1),box-shadow .22s}
+.pass:hover{transform:translateY(-3px);box-shadow:0 0 0 2px var(--acc-tint),0 18px 40px -16px rgba(30,20,90,.22)}
+.pass .pt{display:flex;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--acc)}
+.pass .mid{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1}
+.pass .nm{font-family:var(--display);font-weight:650;letter-spacing:-.015em;font-size:26px;line-height:1.1;overflow-wrap:anywhere}
+.pass .bot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:16px 20px;border-top:1px solid var(--line)}
+.pass .v{font-size:15px;margin-top:2px;font-variant-numeric:tabular-nums}
+.cty{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.cty .head{flex-wrap:wrap}
+.cty .nm{font-family:var(--display);font-weight:650;letter-spacing:-.01em;font-size:22px;line-height:1.1;overflow-wrap:break-word;min-width:0}
+.cty ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cty li{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;border-bottom:1px solid var(--line);padding-bottom:6px}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:25}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));width:max-content;max-width:min(92vw,560px);background:var(--fg);color:#fff;font-family:var(--display);font-weight:600;font-size:15px;padding:14px 22px;border-radius:999px;z-index:30;text-align:center;overflow-wrap:anywhere;box-shadow:0 12px 32px -12px rgba(30,20,90,.4)}
+textarea{resize:vertical;line-height:1.4}
+.foot{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:28px}
+.support{display:flex;flex-direction:column;gap:14px}
+.support img{display:block;width:min(110px,32vw);height:auto;filter:invert(1)}
+/* Segmentregler nach Vorgabe: runde Schiene, weißer Reiter, 320ms */
+.seg-wrap{margin-bottom:20px}
+.seg{position:relative;display:inline-flex;background:rgba(20,16,48,.065);border-radius:999px;padding:3px;gap:2px}
+.seg button{position:relative;z-index:1;border:0;background:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--mute);padding:8px 18px;border-radius:999px;cursor:pointer;transition:color .2s}
+.seg button.on{color:var(--fg)}
+.seg .thumb{position:absolute;top:3px;bottom:3px;left:3px;background:#fff;border-radius:999px;box-shadow:0 1px 2px rgba(20,16,48,.08),0 4px 12px -4px rgba(30,20,90,.2);transition:left .32s cubic-bezier(.32,.72,0,1),width .32s cubic-bezier(.32,.72,0,1);z-index:0}
+.seg-pane{display:none}
+.seg-pane.on{display:block}
+.reveal{opacity:0;transform:translateY(18px) scale(.985)}
+.reveal.show{opacity:1;transform:none;transition:opacity .4s ease,transform .5s cubic-bezier(.2,.9,.25,1)}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+.mark{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc-light),var(--acc-ink));box-shadow:0 2px 6px -2px rgba(30,20,90,.5);flex:none}
+.mark svg{display:block}
+.mark .markdot{position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px #fff}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile{padding:16px 14px}.tile b{font-size:32px}}
+@media (max-width:640px){.nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;width:100%;padding-bottom:6px}.btn{font-size:14px;padding:10px 16px}h2{font-size:20px}#sp .row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top wrap">
+  <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="5"></rect><rect x="7.5" y="9.5" width="9" height="5" rx="2.5"></rect></svg><span class="markdot" aria-hidden="true"></span></span>100 Tage · 10 km</div>
+  <nav class="nav"><a href="#eintrag" id="nav-eintrag">Lauf eintragen</a><a href="#tage">Tage</a><a href="#raster">100 Tage</a><a href="#analyse">Analyse</a><a href="#meilensteine">Meilensteine</a><a href="#vergleich">Vorlauf gegen Streak</a><a href="#finishes">Finishes</a><a href="#playlist">Songs</a><a href="#partner">Partner</a><a href="#regeln">Regeln</a></nav>
+</div>
+
+<main>
+  <div class="wrap hero">
+    <div class="label">Berlin · 01.11.2026 bis 08.02.2027</div>
+    <h1>100 Tage.<br>1.000 km.</h1>
+    <p class="lead">Jeden Tag mindestens zehn Kilometer, locker gelaufen, Herzfrequenz unter 140. Hier steht, wo die Streak gerade steht.</p>
+    <div class="pills"><div class="pill" id="pill"><span class="dot" aria-hidden="true"></span>Start am 01.11.</div><div class="msg" id="pill-sub"></div></div>
+  </div>
+  <div class="wrap"><div class="alert" id="alert" role="status" hidden></div></div>
+  <div class="wrap"><div class="tiles" id="tiles"></div></div>
+
+  <section id="eintrag"><div class="wrap">
+    <h2>Lauf eintragen</h2>
+    <p class="sub" id="form-sub">Datum, Kilometer und Zeit reichen. Du kannst auch die Zeile aus deiner Uhr einfügen, zum Beispiel „Mi., 14.10.26 2 8,24 0:51:06 135 …".</p>
+    <form id="f" autocomplete="off">
+      <label for="paste">Zeile einfügen (optional)<input id="paste" type="text" placeholder="Mi., 14.10.26 2 8,24 0:51:06 135 2 6’12 …"></label>
+      <div class="row">
+        <label for="f-date">Datum<input id="f-date" type="date" required></label>
+        <label for="f-km">Kilometer<input id="f-km" type="text" inputmode="decimal" placeholder="10,02" required></label>
+        <label for="f-time">Zeit<input id="f-time" type="text" inputmode="numeric" placeholder="1:07:30" required></label>
+        <label for="f-hr">Ø HF<input id="f-hr" type="text" inputmode="numeric" placeholder="135"></label>
+        <label for="f-pain">Schmerz 0–10<input id="f-pain" type="text" inputmode="numeric" placeholder="0"></label>
+      </div>
+      <div class="row">
+        <label for="f-type">Art<select id="f-type"></select></label>
+        <label for="f-event">Eventname (optional)<input id="f-event" type="text" maxlength="80" placeholder="Berliner Nachtlauf"></label>
+        <label for="f-city">Stadt<input id="f-city" type="text" maxlength="60" placeholder="Berlin"></label>
+        <label for="f-country">Land<input id="f-country" type="text" maxlength="60" placeholder="Deutschland"></label>
+      </div>
+      <label for="f-strava">Strava-Link (optional)<input id="f-strava" type="url" inputmode="url" placeholder="https://www.strava.com/activities/…"></label>
+      <label for="f-note">Notiz<input id="f-note" type="text" placeholder="Wetter, Gefühl, Strecke"></label>
+      <div class="btns"><button class="btn" type="submit" id="f-save">Speichern</button><button class="btn ghost" type="button" id="f-clear">Leeren</button><button class="btn ghost" type="button" id="f-del" hidden>Tag löschen</button><span class="msg" id="f-msg" role="status"></span></div>
+    </form>
+  </div></section>
+
+  <section id="tage"><div class="wrap">
+    <h2>Letzte Läufe</h2>
+    <p class="sub">Neueste zuerst. Läufe vor dem 01.11. gelten als Vorlauf und zählen nicht zu den 100 Tagen.</p>
+    <div class="cards" id="cards"></div>
+    <div class="btns" style="margin-top:16px"><button class="btn ghost" type="button" id="r-copy">Läufe als Tabelle kopieren</button><span class="msg" id="r-copymsg" role="status"></span></div>
+  </div></section>
+
+  <section id="raster"><div class="wrap">
+    <h2>Alle 100 Tage</h2>
+    <p class="sub">Jedes Feld ist ein Tag. Ein Eintrag mit mindestens 10 km färbt das Feld blau.</p>
+    <div class="grid" id="grid"></div>
+    <div class="legend"><span><i style="background:var(--acc)"></i>10 km oder mehr</span><span><i style="background:var(--warn-bg);border-color:var(--warn)"></i>weniger als 10 km</span><span><i style="background:var(--track)"></i>kein Eintrag</span><span><i style="border-color:var(--acc)"></i>heute</span><span><i style="outline:2px solid var(--fg);outline-offset:-2px"></i>Meilenstein</span><span><i style="outline:2px solid var(--lime);outline-offset:-2px"></i>bester Tag</span></div>
+  </div></section>
+
+  <section id="analyse"><div class="wrap">
+    <h2>Wochenumfang</h2>
+    <p class="sub">Kilometer pro Woche der Streak, Woche 1 beginnt am 01.11.</p>
+    <div class="card reveal" style="padding:24px 20px 16px">
+      <svg id="wk-chart" viewBox="0 0 1000 260" style="width:100%;height:auto;display:block" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
+      <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>abgeschlossene Woche</span><span><i style="background:var(--acc-tint);border-color:var(--acc)"></i>laufende Woche</span></div>
+    </div>
+    <div class="empty" id="analyse-empty" hidden>Noch keine Woche der Streak gelaufen.</div>
+  </div></section>
+
+  <section id="meilensteine"><div class="wrap">
+    <h2>Meilensteine</h2>
+    <div class="ms-row" id="ms"></div>
+  </div></section>
+
+  <section id="vergleich"><div class="wrap">
+    <h2>Vorlauf gegen Streak</h2>
+    <p class="sub">Vorlauf sind die 28 Tage vor dem Start (04.10. bis 31.10.). Verglichen wird mit den Streak-Läufen ab 01.11.</p>
+    <div class="cmp" id="cmp"></div>
+  </div></section>
+
+  <section id="finishes"><div class="wrap">
+    <h2>Finishes</h2>
+    <p class="sub">Events auf dem Weg zu den 100 Tagen, und wo die Streak gelaufen wurde.</p>
+    <div class="seg-wrap"><div class="seg" id="fin-seg" role="tablist">
+      <button type="button" role="tab" data-pane="events" class="on">Events</button>
+      <button type="button" role="tab" data-pane="orte">Orte</button>
+      <div class="thumb" id="fin-thumb"></div>
+    </div></div>
+    <div class="seg-pane on" id="pane-events"><div class="fin" id="events-list"></div></div>
+    <div class="seg-pane" id="pane-orte"><div class="cty" id="orte-list"></div></div>
+  </div></section>
+
+  <section id="playlist"><div class="wrap">
+    <h2>Song des Tages</h2>
+    <p class="sub" id="song-sub">Pro Tag ein Song, zusammen die Playlist der 100 Tage.</p>
+    <div class="hs" id="hs" hidden></div>
+    <div class="prog" id="prog" hidden></div>
+    <form id="sf" autocomplete="off">
+      <div class="row">
+        <label for="s-date">Datum<input id="s-date" type="date" required></label>
+        <label for="s-title">Titel<input id="s-title" type="text" maxlength="120" required></label>
+        <label for="s-artist">Künstler<input id="s-artist" type="text" maxlength="120" required></label>
+      </div>
+      <label for="s-url">Apple-Music-Link (optional)<input id="s-url" type="url" inputmode="url" placeholder="https://music.apple.com/de/album/…"></label>
+      <div class="btns"><button class="btn" type="submit" id="s-save">Song speichern</button><button class="btn ghost" type="button" id="s-clear">Leeren</button><button class="btn ghost" type="button" id="s-del" hidden>Song löschen</button><span class="msg" id="s-msg" role="status"></span></div>
+    </form>
+    <div class="btns" style="margin-top:16px"><button class="btn ghost" type="button" id="s-copy">Playlist als Liste kopieren</button><button class="btn ghost" type="button" id="s-copy2">Liste mit Links kopieren</button><span class="msg" id="s-copymsg" role="status"></span></div>
+    <p class="sub" id="s-tip" style="margin-top:12px">So wird daraus eine Apple-Music-Playlist: Liste mit Links kopieren, in Apple Music eine neue Playlist anlegen und die Songs über den Link oder die Suche hinzufügen. Direkt anlegen kann diese Seite die Playlist nicht.</p>
+    <div class="plist" id="songs"></div>
+  </div></section>
+
+  <section id="partner"><div class="wrap">
+    <h2>Partner und Sponsoren</h2>
+    <p class="sub">Du willst die Streak oder das, was danach kommt, unterstützen? Schreib mir. Die Zahlen oben laufen live mit.</p>
+    <div class="rules">
+      <div class="card reveal"><h3>Die Streak</h3><p>100 Tage, jeden Tag mindestens zehn Kilometer, Start am 01.11.2026 in Berlin. Jeder Lauf und jeder Song des Tages steht auf dieser Seite.</p></div>
+      <div class="card reveal"><h3>Danach</h3><p>Tour de Union, Saison 2027/28: Heimspiele des 1. FC Union Berlin laufend, Auswärtsspiele mit dem Rad, dazu Streaming und Doku.</p></div>
+      <div class="card reveal"><h3>Kontakt</h3><p id="c-text"></p>
+        <div class="btns"><a class="btn" id="c-mail" hidden>Anfrage per E-Mail</a></div>
+        <form id="cf" hidden autocomplete="off"><label for="c-email">E-Mail für Anfragen<input id="c-email" type="email" maxlength="120" placeholder="name@example.de"></label><div class="btns"><button class="btn ghost" type="submit" id="c-save">Speichern</button><span class="msg" id="c-msg" role="status"></span></div></form>
+      </div>
+    </div>
+    <form id="sp" autocomplete="off" style="margin-top:24px">
+      <div class="label">Sponsoring-Anfrage vorbereiten</div>
+      <div class="row">
+        <label for="sp-name">Dein Name<input id="sp-name" type="text" maxlength="80"></label>
+        <label for="sp-org">Unternehmen (optional)<input id="sp-org" type="text" maxlength="80"></label>
+        <label for="sp-kind">Interesse<select id="sp-kind"><option>Geldleistung</option><option>Ausrüstung oder Sachleistung</option><option>Event oder Ort</option><option>Medien und Reichweite</option><option>Anderes</option></select></label>
+      </div>
+      <label for="sp-msg">Nachricht<textarea id="sp-msg" rows="4" maxlength="1500"></textarea></label>
+      <div class="btns"><button class="btn" type="submit">Text erstellen</button><span class="msg" id="sp-status" role="status"></span></div>
+      <div id="sp-res" hidden>
+        <label for="sp-out">Fertiger Text<textarea id="sp-out" rows="9" readonly></textarea></label>
+        <div class="btns" style="margin-top:12px"><button class="btn ghost" type="button" id="sp-copy">Text kopieren</button><a class="ext" id="sp-mail" hidden>Im Mail-Programm öffnen (falls verfügbar)</a></div>
+      </div>
+      <div class="note" id="sp-to"></div>
+    </form>
+  </div></section>
+
+  <section id="regeln"><div class="wrap">
+    <h2>Regeln</h2>
+    <div class="rules">
+      <div class="card reveal"><h3>Gültiger Tag</h3><p>Mindestens zehn Kilometer am Kalendertag, Tempo egal.</p></div>
+      <div class="card reveal"><h3>Tempo</h3><p>Locker laufen, Herzfrequenz bis 138 bis 140, keine Intervalle.</p></div>
+      <div class="card reveal"><h3>Stoppregel</h3><p>Bei Schmerz, der am nächsten Morgen noch da ist, oder bei Infekt wird pausiert.</p></div>
+      <div class="card reveal"><h3>Joker</h3><p>Kein Joker. Ein Tag mit weniger als 10 km zählt nicht für die Streak.</p></div>
+    </div>
+  </div></section>
+</main>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<footer><div class="wrap foot">
+  <div class="support"><div class="label">Support von</div><img src="split-slow.png" alt="Split Slow, Running Streetwear Apparel" width="520" height="439"></div>
+  <div>100 Tage · 10 km · Berlin</div>
+  <div class="label" id="auth-box">
+    <a href="#" id="auth-toggle">Admin-Login</a>
+    <button class="btn ghost" id="auth-logout" type="button" hidden>Ausloggen</button>
+    <form id="authf" hidden autocomplete="off" style="margin-top:10px;max-width:240px;gap:8px">
+      <input id="auth-email" type="email" placeholder="E-Mail" autocomplete="username">
+      <input id="auth-pass" type="password" placeholder="Passwort" autocomplete="current-password">
+      <div class="btns"><button class="btn ghost" type="submit">Einloggen</button><span class="msg" id="auth-msg" role="status"></span></div>
+    </form>
+  </div>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  var START=new Date(2026,10,1), DAYS=100, MS=[1,25,50,55,62,75,100];
+  var MSNOTE={1:'Start der Streak',25:'Erstes Viertel',50:'Halbzeit',55:'Weihnachten',62:'Neujahr',75:'Drei Viertel',100:'Ziel'};
+  var WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var state={runs:{},songs:{},contact:'',canEdit:false,ready:false};
+  var db=null;
+var SUPABASE_URL='https://skzgxpeotjcsmmaatoag.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNremd4cGVvdGpjc21tYWF0b2FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3MTk1NDgsImV4cCI6MjEwODI5NTU0OH0.SmqHwwayWE6WWxa6KejycdmepX19EpXXcEBmJ-piDeE';
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error;return res})}
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function p2(n){return String(n).padStart(2,'0')}
+  function iso(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+  function parseIso(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+  function dayDiff(a,b){return Math.round((Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())-Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()))/864e5)}
+  function today(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+  function fmtDate(d){return WD[d.getDay()]+' '+p2(d.getDate())+'.'+p2(d.getMonth()+1)+'.'}
+  function fmtDateY(d){return fmtDate(d)+d.getFullYear()}
+  function fmtPace(s){if(!isFinite(s)||s<=0)return '–';var t=Math.round(s);return Math.floor(t/60)+':'+p2(t%60)}
+  function fmtTime(s){var t=Math.round(s),h=Math.floor(t/3600),m=Math.floor(t%3600/60);return h+':'+p2(m)+':'+p2(t%60)}
+  function fmtKm(k){return k.toFixed(2).replace('.',',')}
+  function fmtDec(n,dp){return n.toFixed(dp==null?1:dp).replace('.',',')}
+  function groupThsp(s){var out='';for(var i=0;i<s.length;i++){if(i>0&&(s.length-i)%3===0)out+='<span class="thsp"></span>';out+=s[i]}return out}
+  function fmtBig(n){return groupThsp(String(Math.round(n)))}
+  function num(s){var v=parseFloat(String(s).replace(',','.'));return isFinite(v)?v:null}
+  function parseTime(s){
+    var t=String(s||'').trim().split(':').map(function(x){return parseInt(x,10)});
+    if(t.some(isNaN)||t.length<2||t.length>3)return null;
+    return t.length===3?t[0]*3600+t[1]*60+t[2]:t[0]*60+t[1];
+  }
+  function runsList(){return Object.keys(state.runs).sort().map(function(k){return state.runs[k]})}
+  var TYPES=[['training','Training'],['nacht','Nachtlauf'],['10k','10-km-Lauf'],['halb','Halbmarathon'],['voll','Marathon'],['ultra','Ultra'],['event','Anderes Event']];
+  function typeLabel(k){for(var i=0;i<TYPES.length;i++)if(TYPES[i][0]===k)return TYPES[i][1];return ''}
+  var STRAVA_RE=/^https:\/\/((www\.)?strava\.com\/(activities|routes)|strava\.app\.link)\/[^\s]+$/i;
+  var APPLE_RE=/^https:\/\/(music|geo\.music)\.apple\.com\/[^\s]+$/i;
+  var MAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var lastLoc={city:'Berlin',country:'Deutschland'};
+  function cell(v){var s=String(v==null?'':v);if(typeof v==='string'&&/^[=+\-@]/.test(s))s="'"+s;return /[\t"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+  function copyText(text,m,okMsg){
+    function fallback(){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta);m.textContent=ok?okMsg:'Kopieren ist hier nicht möglich.'}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){m.textContent=okMsg},fallback)}else fallback();
+  }
+
+  function fx(big){
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)return;
+    var c=$('fx'),ctx=c&&c.getContext&&c.getContext('2d');if(!ctx)return;
+    var W=c.width=window.innerWidth,H=c.height=window.innerHeight,cols=['#3E12E3','#8C74F2','#D8FF4F','#5B36F0'],n=big?170:70,ps=[],i;
+    for(i=0;i<n;i++)ps.push({x:W/2+(Math.random()-.5)*W*.3,y:H*.8,vx:(Math.random()-.5)*(big?18:11),vy:-(Math.random()*(big?20:13)+7),s:5+Math.random()*7,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[i%cols.length]});
+    var t0=performance.now();
+    (function step(t){
+      var e=t-t0;ctx.clearRect(0,0,W,H);
+      ps.forEach(function(p){p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,1-e/2200);ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore()});
+      if(e<2200)requestAnimationFrame(step);else ctx.clearRect(0,0,W,H);
+    })(t0);
+  }
+  function cheer(text,big){
+    var t=$('toast');t.textContent=text;t.hidden=false;
+    clearTimeout(cheer.h);cheer.h=setTimeout(function(){t.hidden=true},3800);
+    fx(big);
+  }
+  function celebrateRun(r){
+    var d=parseIso(r.date),n=d?dayDiff(d,START)+1:0,inS=n>=1&&n<=DAYS,isMs=inS&&MS.indexOf(n)>=0;
+    if(r.type&&r.type!=='training'){cheer('Finisher: '+(r.event||typeLabel(r.type)),true);return}
+    if(inS&&r.km>=10)cheer(isMs?'Tag '+n+': '+MSNOTE[n]:'Tag '+n+' geschafft',isMs);
+  }
+  function celebrateSong(s){
+    var d=parseIso(s.date),n=d?dayDiff(d,START)+1:0,inS=n>=1&&n<=DAYS,isMs=inS&&MS.indexOf(n)>=0;
+    var cnt=Object.keys(state.songs).length+(state.songs[s.date]?0:1);
+    cheer('Song '+cnt+': '+s.title,isMs);
+  }
+
+  function renderWeekChart(streak,tn){
+    var totalWeeks=Math.ceil(DAYS/7);
+    var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
+    var svg=$('wk-chart');
+    if(curWeek<1){svg.innerHTML='';$('analyse-empty').hidden=false;return}
+    $('analyse-empty').hidden=true;
+    var wk=[];for(var w=0;w<totalWeeks;w++)wk.push(0);
+    streak.forEach(function(r){var d=parseIso(r.date),n=dayDiff(d,START)+1,wi=Math.floor((n-1)/7);if(wi>=0&&wi<totalWeeks)wk[wi]+=r.km});
+    var shown=wk.slice(0,curWeek);
+    var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
+    var padL=20,padR=20,plotW=1000-padL-padR,gap=Math.max(4,10-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=160,y0=196;
+    var lastInProgress=!(curWeek===totalWeeks&&tn>=DAYS);
+    var parts=['<line x1="'+padL+'" y1="'+y0+'" x2="'+(padL+plotW)+'" y2="'+y0+'" stroke="rgba(14,13,18,.07)" stroke-width="1"></line>'];
+    shown.forEach(function(v,i){
+      var h=Math.round(v/maxWk*maxH),x=padL+i*(barW+gap),y=y0-h,isCur=lastInProgress&&i===shown.length-1;
+      parts.push('<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(h,0)+'" rx="5" fill="'+(isCur?'var(--acc-tint)':'var(--acc)')+'" stroke="'+(isCur?'var(--acc)':'none')+'" stroke-width="'+(isCur?'1.5':'0')+'" stroke-dasharray="'+(isCur?'4 3':'0')+'"></rect>');
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" font-size="15" font-weight="650" fill="var(--fg)" style="font-family:var(--display)">'+(v>0?String(Math.round(v)):'–')+'</text>');
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+20)+'" text-anchor="middle" font-size="12.5" fill="var(--mute)">W'+(i+1)+'</text>');
+    });
+    svg.innerHTML=parts.join('');
+  }
+
+  function setupReveal(){
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var els=document.querySelectorAll('.reveal:not(.show)');
+    if(!els.length)return;
+    if(rm||document.hidden||!('IntersectionObserver' in window)){
+      for(var i=0;i<els.length;i++)els[i].classList.add('show');
+      return;
+    }
+    if(!setupReveal.io)setupReveal.io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('show');setupReveal.io.unobserve(en.target)}});
+    },{threshold:.12});
+    for(var j=0;j<els.length;j++){
+      els[j].style.transitionDelay=Math.min(j*60,480)+'ms';
+      setupReveal.io.observe(els[j]);
+    }
+    clearTimeout(setupReveal.watch);
+    setupReveal.watch=setTimeout(function(){
+      var left=document.querySelectorAll('.reveal:not(.show)');
+      for(var k=0;k<left.length;k++)left[k].classList.add('show');
+    },2500);
+  }
+
+  function render(){
+    var all=runsList(), t=today();
+    var streak=all.filter(function(r){var d=parseIso(r.date);if(!d)return false;var n=dayDiff(d,START)+1;return n>=1&&n<=DAYS});
+    var started=dayDiff(t,START)>=0;
+    // Kopf
+    var pill=$('pill'),sub=$('pill-sub');
+    if(!started){var left=-dayDiff(t,START);pill.textContent='Start am 01.11.';sub.textContent=left===1?'Noch 1 Tag bis zum Start':'Noch '+left+' Tage bis zum Start'}
+    else{var n=Math.min(DAYS,dayDiff(t,START)+1);pill.textContent='Tag '+n+' von '+DAYS;sub.textContent=n>=DAYS?'Letzter Tag':'Noch '+(DAYS-n)+' Tage bis zum Ziel'}
+    // Kennzahlen
+    var done=streak.filter(function(r){return r.km>=10}).length;
+    var km=streak.reduce(function(a,r){return a+r.km},0);
+    var sec=streak.reduce(function(a,r){return a+(r.time_s||0)},0);
+    var hrw=streak.filter(function(r){return r.hr&&r.time_s}),hrT=hrw.reduce(function(a,r){return a+r.time_s},0);
+    var hr=hrT?hrw.reduce(function(a,r){return a+r.hr*r.time_s},0)/hrT:null;
+    var paceKm=streak.filter(function(r){return r.time_s});
+    var pace=paceKm.length?paceKm.reduce(function(a,r){return a+r.time_s},0)/paceKm.reduce(function(a,r){return a+r.km},0):null;
+    var cities={},countries={};streak.forEach(function(r){if(r.city)cities[String(r.city).trim().toLowerCase()]=1;if(r.country)countries[String(r.country).trim().toLowerCase()]=1});
+    var nc=Object.keys(cities).length,nl=Object.keys(countries).length;
+    var evN=streak.filter(function(r){return r.type&&r.type!=='training'}).length;
+    var tiles=[[String(done),'Tage geschafft'],[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden auf den Beinen'],[hr?String(Math.round(hr)):'–','Ø Herzfrequenz'],[pace?fmtPace(pace):'–','Ø Pace pro km'],[String(evN),'Events und Wettkämpfe'],[nc?nc+' / '+nl:'–','Städte / Länder'],[String(Object.keys(state.songs).length),'Songs in der Playlist']];
+    $('tiles').innerHTML=tiles.map(function(x){return '<div class="tile reveal"><b>'+x[0]+'</b><div class="label">'+esc(x[1])+'</div></div>'}).join('');
+    // Karten
+    var last=all.slice().reverse().slice(0,6);
+    $('cards').innerHTML=last.length?last.map(function(r){
+      var d=parseIso(r.date),n=dayDiff(d,START)+1,inStreak=n>=1&&n<=DAYS;
+      var short=inStreak&&r.km<10,isEv=!!(r.type&&r.type!=='training');
+      var tags='<div class="tags">'+(isEv?'<div class="tag ev">'+esc(typeLabel(r.type))+'</div>':'')+'<div class="tag'+(short?' warn':'')+'">'+(short?'Unter 10 km':(inStreak?'Erledigt':'Vorlauf'))+'</div></div>';
+      var loc=[r.city,r.country].filter(Boolean).join(', ');
+      return '<div class="card reveal'+(isEv?' ev':'')+'"><div class="head"><div><div class="label">'+(inStreak?'Tag '+n:'Vorlauf')+' · '+esc(fmtDate(d))+'</div>'+(isEv?'<div class="evname">'+esc(r.event||typeLabel(r.type))+'</div>':'')+'<div class="big">'+esc(fmtKm(r.km))+'<small> km</small></div></div>'+tags+'</div>'
+        +(loc?'<div class="loc">'+esc(loc)+'</div>':'')
+        +'<div class="kv"><div><div class="label">Pace</div><div class="v">'+(r.time_s?fmtPace(r.time_s/r.km)+' /km':'–')+'</div></div><div><div class="label">Ø Herzfrequenz</div><div class="v">'+(r.hr?r.hr+' bpm':'–')+'</div></div><div><div class="label">Zeit</div><div class="v">'+(r.time_s?fmtTime(r.time_s):'–')+'</div></div><div><div class="label">Schmerz (0–10)</div><div class="v">'+(r.pain==null?'–':r.pain)+'</div></div></div>'
+        +(r.note?'<div class="note">'+esc(r.note)+'</div>':'')
+        +(r.strava&&STRAVA_RE.test(r.strava)?'<div><a class="ext" href="'+esc(r.strava)+'" target="_blank" rel="noopener noreferrer">In Strava öffnen</a></div>':'')
+        +(state.canEdit?'<button class="edit" type="button" data-edit="'+esc(r.date)+'">Bearbeiten</button>':'')+'</div>';
+    }).join(''):'<div class="empty">Noch kein Lauf eingetragen.'+(state.canEdit?' Trag oben den ersten Lauf ein.':'')+'</div>';
+    // Events als Karten
+    var evs=all.filter(function(r){return r.type&&r.type!=='training'}).reverse();
+    $('events-list').innerHTML=evs.length?evs.map(function(r){
+      var d=parseIso(r.date),n=dayDiff(d,START)+1,inS=n>=1&&n<=DAYS,loc=[r.city,r.country].filter(Boolean).join(', ');
+      return '<div class="pass reveal"><div class="pt"><span>'+esc(typeLabel(r.type))+'</span><span>'+esc(fmtDateY(d))+'</span></div><div class="mid"><div class="nm">'+esc(r.event||typeLabel(r.type))+'</div><div class="loc">'+esc(loc||'Ort offen')+(inS?' · Tag '+n:'')+'</div></div><div class="bot"><div><div class="label">Distanz</div><div class="v">'+esc(fmtKm(r.km))+' km</div></div><div><div class="label">Zeit</div><div class="v">'+(r.time_s?fmtTime(r.time_s):'–')+'</div></div><div><div class="label">Pace</div><div class="v">'+(r.time_s?fmtPace(r.time_s/r.km):'–')+'</div></div></div></div>';
+    }).join(''):'<div class="empty" style="grid-column:1/-1">Noch kein Event.'+(state.canEdit?' Wähle beim Lauf eine Art wie Nachtlauf oder Halbmarathon, dann erscheint hier die Karte dazu.':'')+'</div>';
+    // Orte nach Land und Stadt
+    var byC={};
+    all.forEach(function(r){
+      var cn=(r.country||'').trim(),ci=(r.city||'').trim();if(!cn&&!ci)return;
+      var ck=cn.toLowerCase()||'?',c=byC[ck]||(byC[ck]={name:cn||'Land offen',km:0,n:0,cities:{}});
+      c.km+=r.km;c.n++;
+      var ik=ci.toLowerCase()||'?',x=c.cities[ik]||(c.cities[ik]={name:ci||'Stadt offen',km:0,n:0});x.km+=r.km;x.n++;
+    });
+    var cks=Object.keys(byC).sort(function(a,b){return byC[b].km-byC[a].km});
+    $('orte-list').innerHTML=cks.length?cks.map(function(k){
+      var c=byC[k];
+      return '<div class="card reveal"><div class="head"><div class="nm">'+esc(c.name)+'</div><div class="tag">'+c.n+(c.n===1?' Lauf':' Läufe')+'</div></div><div class="mono msg">'+c.km.toFixed(0)+' km</div><ul>'
+        +Object.keys(c.cities).sort(function(a,b){return c.cities[b].km-c.cities[a].km}).map(function(ik){var x=c.cities[ik];return '<li><span>'+esc(x.name)+'</span><span>'+x.n+(x.n===1?' Lauf':' Läufe')+' · '+x.km.toFixed(0)+' km</span></li>'}).join('')+'</ul></div>';
+    }).join(''):'<div class="empty" style="grid-column:1/-1">Noch keine Orte.'+(state.canEdit?' Trag beim nächsten Lauf Stadt und Land ein.':'')+'</div>';
+    // Warnhinweis bei Schmerz
+    var l1=all[all.length-1],l2=all[all.length-2],am='';
+    if(l1&&parseIso(l1.date)&&dayDiff(t,parseIso(l1.date))<=2){
+      if(l1.pain>=6)am='Schmerz '+l1.pain+' beim letzten Lauf ('+fmtDate(parseIso(l1.date))+'). Heute eher pausieren oder deutlich kürzer laufen.';
+      else if(l2&&l1.pain>=3&&l2.pain>=3&&dayDiff(parseIso(l1.date),parseIso(l2.date))===1)am='Schmerz 3 oder mehr an zwei Tagen in Folge. Prüf, ob ein Pausentag oder eine kürzere Einheit sinnvoller ist.';
+    }
+    $('alert').hidden=!am;$('alert').textContent=am;
+    // Raster
+    var byDay={};streak.forEach(function(r){byDay[dayDiff(parseIso(r.date),START)+1]=r});
+    var tn=dayDiff(t,START)+1,g='',bestDay=0,bestKm=0;
+    Object.keys(byDay).forEach(function(k){if(byDay[k].km>bestKm){bestKm=byDay[k].km;bestDay=+k}});
+    for(var i=1;i<=DAYS;i++){
+      var c='cell',e=byDay[i];
+      if(e)c+=e.km>=10?' done':' short';else if(i<tn)c+=' missed';else if(i===tn)c+=' today';
+      if(MS.indexOf(i)>=0)c+=' ms';
+      if(i===bestDay)c+=' best';
+      g+='<div class="'+c+'" title="Tag '+i+' · '+esc(fmtDateY(new Date(2026,10,i)))+(e?' · '+fmtKm(e.km)+' km':'')+'">'+i+'</div>';
+    }
+    $('grid').innerHTML=g;
+    renderWeekChart(streak,tn);
+    // Meilensteine
+    $('ms').innerHTML=MS.map(function(d){
+      var dt=new Date(2026,10,d),diff=dayDiff(dt,t);
+      var st=byDay[d]?'Geschafft':(diff<0?'Vorbei':(diff===0?'Heute':'In '+diff+' Tagen'));
+      return '<div class="reveal"><b>Tag '+d+'</b><div class="mono msg">'+esc(fmtDateY(dt))+'</div><div>'+esc(MSNOTE[d])+'</div><div class="label">'+esc(st)+'</div></div>';
+    }).join('');
+    // Vergleich
+    var vs=new Date(2026,9,4),ve=new Date(2026,9,31);
+    var vor=all.filter(function(r){var d=parseIso(r.date);return d>=vs&&d<=ve});
+    function agg(list){
+      var K=list.reduce(function(a,r){return a+r.km},0),tt=list.filter(function(r){return r.time_s}),T=tt.reduce(function(a,r){return a+r.time_s},0),TK=tt.reduce(function(a,r){return a+r.km},0);
+      var hh=list.filter(function(r){return r.hr&&r.time_s}),HT=hh.reduce(function(a,r){return a+r.time_s},0);
+      return {km:K,pace:TK?T/TK:null,hr:HT?hh.reduce(function(a,r){return a+r.hr*r.time_s},0)/HT:null,n:list.length};
+    }
+    var V=agg(vor),S=agg(streak);
+    var span=streak.length?Math.max(1,dayDiff(parseIso(streak[streak.length-1].date),START)+1):0;
+    var vPerWeek=V.n?V.km/4:null,sPerWeek=span?S.km/span*7:null;
+    // Differenzen werden aus den gerundeten, angezeigten Werten gerechnet, nie aus den Rohwerten
+    function sign(x,u,dp){return (x>=0?'+':'−')+Math.abs(x).toFixed(dp||0).replace('.',',')+u}
+    var vPWr=vPerWeek!=null?Math.round(vPerWeek):null,sPWr=sPerWeek!=null?Math.round(sPerWeek):null;
+    var vHRr=V.hr!=null?Math.round(V.hr):null,sHRr=S.hr!=null?Math.round(S.hr):null;
+    var vPaceR=V.pace!=null?Math.round(V.pace):null,sPaceR=S.pace!=null?Math.round(S.pace):null;
+    var cmp=[
+      {l:'Wochenumfang',d:(vPWr!=null&&sPWr!=null)?sign(sPWr-vPWr,' km'):'–',t:(vPWr!=null?'Vorlauf ca. '+vPWr+' km':'Vorlauf: keine Daten')+(sPWr!=null?', Streak ca. '+sPWr+' km':', Streak: noch keine Läufe')},
+      {l:'Ø Pace',d:(vPaceR!=null&&sPaceR!=null)?(sPaceR-vPaceR>=0?'+':'−')+fmtPace(Math.abs(sPaceR-vPaceR))+' /km':'–',t:(vPaceR!=null?'Vorlauf '+fmtPace(vPaceR):'Vorlauf: keine Daten')+(sPaceR!=null?', Streak '+fmtPace(sPaceR):', Streak: noch keine Läufe')},
+      {l:'Ø Herzfrequenz',d:(vHRr!=null&&sHRr!=null)?sign(sHRr-vHRr,' bpm'):'–',t:(vHRr!=null?'Vorlauf '+vHRr:'Vorlauf: keine Daten')+(sHRr!=null?', Streak '+sHRr:', Streak: noch keine Läufe')}
+    ];
+    $('cmp').innerHTML=cmp.map(function(k){return '<div class="card reveal"><div class="label">'+esc(k.l)+'</div><b>'+esc(k.d)+'</b><div class="mono note">'+esc(k.t)+'</div></div>'}).join('');
+    var sl=Object.keys(state.songs).sort().reverse().map(function(k){return state.songs[k]});
+    var sIn=sl.filter(function(s){var d=parseIso(s.date),n=d?dayDiff(d,START)+1:0;return n>=1&&n<=DAYS}).length;
+    var hsong=state.songs[iso(t)]||sl[0]||null,hs=$('hs');
+    if(hsong){
+      var hd=parseIso(hsong.date),hn=hd?dayDiff(hd,START)+1:0,hin=hn>=1&&hn<=DAYS,hrun=state.runs[hsong.date],isT=hsong.date===iso(t);
+      hs.className='hs'+(isT?' today':'')+(hin&&MS.indexOf(hn)>=0?' ms':'');
+      hs.innerHTML='<div class="label">'+(isT?'Song des Tages':'Zuletzt eingetragen')+' · '+(hin?'Tag '+hn:'Vorlauf')+' · '+esc(hd?fmtDate(hd):hsong.date)+(hin&&MSNOTE[hn]?' · '+esc(MSNOTE[hn]):'')+'</div><div class="t">'+esc(hsong.title)+'</div><div class="a">'+esc(hsong.artist)+'</div>'
+        +(hrun?'<div class="mono msg">Dazu gelaufen: '+esc(fmtKm(hrun.km))+' km'+(hrun.time_s?' · '+esc(fmtPace(hrun.time_s/hrun.km))+' /km':'')+'</div>':'')
+        +(hin&&hrun&&hrun.km>=10?'<div class="done">Tag '+hn+' geschafft: Lauf und Song sind drin</div>':'')
+        +(hsong.url&&APPLE_RE.test(hsong.url)?'<div><a class="ext" href="'+esc(hsong.url)+'" target="_blank" rel="noopener noreferrer">In Apple Music öffnen</a></div>':'');
+      hs.hidden=false;
+    }else hs.hidden=true;
+    $('prog').hidden=!sl.length;
+    var nxm=MS.filter(function(m){return m>=25&&m>sIn})[0];
+    $('prog').innerHTML='<div class="label">'+sIn+' von '+DAYS+' Songs'+(nxm?' · noch '+(nxm-sIn)+' bis '+esc(MSNOTE[nxm]):'')+'</div><div class="bar"><b style="left:25%"></b><b style="left:50%"></b><b style="left:75%"></b><i style="width:'+Math.min(100,sIn)+'%"></i></div>';
+    $('songs').innerHTML=sl.length?sl.map(function(s){
+      var d=parseIso(s.date),n=d?dayDiff(d,START)+1:0,inS=n>=1&&n<=DAYS,isMs=inS&&MS.indexOf(n)>=0;
+      return '<div class="prow'+(isMs?' ms':'')+'"><div class="label n">'+(inS?'Tag '+n:'Vorlauf')+' · '+esc(d?fmtDate(d):s.date)+(isMs?' · '+esc(MSNOTE[n]):'')+'</div><div><div class="t">'+esc(s.title)+'</div><div class="note">'+esc(s.artist)+(state.runs[s.date]?' · '+esc(fmtKm(state.runs[s.date].km))+' km an dem Tag':'')+'</div></div><div class="ac">'
+        +(s.url&&APPLE_RE.test(s.url)?'<a class="ext" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">Apple Music</a>':'')
+        +(state.canEdit?'<button class="edit" type="button" data-song="'+esc(s.date)+'">Bearbeiten</button>':'')+'</div></div>';
+    }).join(''):'<div class="empty" style="border:0">Noch kein Song eingetragen.'+(state.canEdit?' Trag oben den ersten Song ein.':'')+'</div>';
+    $('s-copy').hidden=!sl.length;$('s-copy2').hidden=!sl.length;
+    // Formulare nur für Editoren
+    var show=state.canEdit;
+    $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Apple Music lässt sich hier nicht einbetten. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann öffnet er sich per Klick.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
+    $('s-tip').hidden=!show;
+    $('f').hidden=!show;$('sf').hidden=!show;$('nav-eintrag').hidden=!show;
+    $('eintrag').hidden=!show&&state.ready;
+    // Kontakt
+    var ce=MAIL_RE.test(state.contact||'')?state.contact:'';
+    $('c-text').textContent=ce?'Anfragen für Sponsoring und Zusammenarbeit per E-Mail an '+ce+'.':(show?'Trag unten die E-Mail-Adresse ein, an die Anfragen gehen sollen.':'Kontakt folgt.');
+    $('c-mail').hidden=!ce;if(ce)$('c-mail').setAttribute('href','mailto:'+ce+'?subject='+encodeURIComponent('Sponsoring 100 Tage 10 km'));
+    $('cf').hidden=!show;
+    $('sp-to').textContent=ce?'Schick den Text per E-Mail an '+ce+'.':'Die Kontaktadresse ist noch nicht hinterlegt.';
+    if(document.activeElement!==$('c-email'))$('c-email').value=ce;
+    setupReveal();
+  }
+
+  function smsg(t,err){var m=$('s-msg');m.textContent=t||'';m.className='msg'+(err?' err':'')}
+  function sfill(s){
+    $('s-date').value=s?s.date:iso(today());
+    $('s-title').value=s?s.title:'';$('s-artist').value=s?s.artist:'';$('s-url').value=s&&s.url?s.url:'';
+    $('s-del').hidden=!s;smsg('');
+  }
+  function setupSongs(){
+    sfill(null);
+    $('s-clear').addEventListener('click',function(){sfill(null)});
+    $('s-del').addEventListener('click',function(){
+      var d=$('s-date').value;if(!db||!state.songs[d])return;
+      sbCall(sb.from('songs').delete().eq('date',d)).then(function(){sfill(null);smsg('Song gelöscht.')}).catch(function(){smsg('Löschen ist fehlgeschlagen.',true)});
+    });
+    $('sf').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      if(!db){smsg('Speichern ist hier nicht möglich.',true);return}
+      var date=$('s-date').value,title=$('s-title').value.trim(),artist=$('s-artist').value.trim(),url=$('s-url').value.trim();
+      if(!parseIso(date)){smsg('Bitte ein Datum wählen.',true);return}
+      if(!title||!artist){smsg('Bitte Titel und Künstler eingeben.',true);return}
+      if(url&&!APPLE_RE.test(url)){smsg('Der Link muss mit https://music.apple.com/ beginnen.',true);return}
+      var doc={date:date,title:title.slice(0,120),artist:artist.slice(0,120)};if(url)doc.url=url;
+      $('s-save').disabled=true;
+      sbCall(sb.from('songs').upsert(doc,{onConflict:'date'})).then(function(){smsg('Gespeichert.');sfill(null);celebrateSong(doc)}).catch(function(){smsg('Speichern ist fehlgeschlagen. Versuch es noch einmal.',true)}).then(function(){$('s-save').disabled=false});
+    });
+    $('songs').addEventListener('click',function(ev){
+      var b=ev.target.closest&&ev.target.closest('[data-song]');if(!b)return;
+      var s=state.songs[b.getAttribute('data-song')];if(!s)return;
+      sfill(s);$('sf').scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    $('s-copy').addEventListener('click',function(){
+      var text=Object.keys(state.songs).sort().map(function(k,i){var s=state.songs[k];return (i+1)+'. '+s.title+' – '+s.artist}).join('\n');
+      copyText(text,$('s-copymsg'),'Liste kopiert.');
+    });
+    $('r-copy').addEventListener('click',function(){
+      var head=['Datum','Tag','Kilometer','Zeit','Pace','HF','Schmerz','Art','Event','Stadt','Land','Strava','Notiz'].join('\t');
+      var rows=runsList().map(function(r){var d=parseIso(r.date),n=dayDiff(d,START)+1;return [r.date,(n>=1&&n<=DAYS)?n:'',String(r.km).replace('.',','),r.time_s?fmtTime(r.time_s):'',r.time_s?fmtPace(r.time_s/r.km):'',r.hr||'',r.pain==null?'':r.pain,typeLabel(r.type||'training'),r.event||'',r.city||'',r.country||'',r.strava||'',r.note||''].map(cell).join('\t')});
+      copyText([head].concat(rows).join('\n'),$('r-copymsg'),'Tabelle kopiert. In Numbers oder Excel einfügen.');
+    });
+    $('cf').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      var m=$('c-msg'),v=$('c-email').value.trim();
+      function say(t,err){m.textContent=t;m.className='msg'+(err?' err':'')}
+      if(!db){say('Speichern ist hier nicht möglich.',true);return}
+      if(v&&!MAIL_RE.test(v)){say('Bitte eine gültige E-Mail-Adresse eingeben.',true);return}
+      sbCall(sb.from('config').upsert({key:'contact',value:{email:v}},{onConflict:'key'})).then(function(){say('Gespeichert.')}).catch(function(){say('Speichern ist fehlgeschlagen.',true)});
+    });
+  }
+
+  function setupSeg(){
+    var seg=$('fin-seg'),thumb=$('fin-thumb'),btns=[].slice.call(seg.querySelectorAll('button'));
+    function place(){
+      var on=seg.querySelector('button.on');if(!on)return;
+      thumb.style.left=(on.offsetLeft)+'px';thumb.style.width=on.offsetWidth+'px';
+    }
+    btns.forEach(function(b){
+      b.addEventListener('click',function(){
+        btns.forEach(function(x){x.classList.toggle('on',x===b)});
+        $('pane-events').classList.toggle('on',b.getAttribute('data-pane')==='events');
+        $('pane-orte').classList.toggle('on',b.getAttribute('data-pane')==='orte');
+        place();
+      });
+    });
+    place();
+    window.addEventListener('resize',place);
+  }
+
+  function setupExtras(){
+    $('s-copy2').addEventListener('click',function(){
+      var text=Object.keys(state.songs).sort().map(function(k,i){var s=state.songs[k];return (i+1)+'. '+s.title+' – '+s.artist+(s.url&&APPLE_RE.test(s.url)?' '+s.url:'')}).join('\n');
+      copyText(text,$('s-copymsg'),'Liste mit Links kopiert.');
+    });
+    $('sp').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      var st=$('sp-status'),n=$('sp-name').value.trim(),o=$('sp-org').value.trim(),k=$('sp-kind').value,m=$('sp-msg').value.trim();
+      if(!n||!m){st.textContent='Bitte Name und Nachricht ausfüllen.';st.className='msg err';return}
+      var subj='Sponsoring 100 Tage 10 km';
+      var body='Hallo Michael,\n\nich melde mich zu deiner Streak: 100 Tage, jeden Tag mindestens 10 km, ab dem 01.11.2026.\n\nVon: '+n+(o?' ('+o+')':'')+'\nInteresse: '+k+'\n\n'+m+'\n\nViele Grüße\n'+n;
+      $('sp-out').value='Betreff: '+subj+'\n\n'+body;$('sp-res').hidden=false;
+      var ce=MAIL_RE.test(state.contact||'')?state.contact:'',a=$('sp-mail');
+      a.hidden=!ce;if(ce)a.setAttribute('href','mailto:'+ce+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body));
+      st.textContent='Text erstellt. Er ist noch nicht verschickt.';st.className='msg';
+    });
+    $('sp-copy').addEventListener('click',function(){copyText($('sp-out').value,$('sp-status'),'Text kopiert. Schick ihn per E-Mail an die Adresse unten.')});
+  }
+
+  function msg(t,err){var m=$('f-msg');m.textContent=t||'';m.className='msg'+(err?' err':'')}
+  function fill(r){
+    $('f-date').value=r?r.date:iso(today());
+    $('f-km').value=r?String(r.km).replace('.',','):'';
+    $('f-time').value=r&&r.time_s?fmtTime(r.time_s):'';
+    $('f-hr').value=r&&r.hr?r.hr:'';
+    $('f-pain').value=r&&r.pain!=null?r.pain:'';
+    $('f-type').value=r&&r.type?r.type:'training';
+    $('f-event').value=r&&r.event?r.event:'';
+    $('f-city').value=r?(r.city||''):lastLoc.city;
+    $('f-country').value=r?(r.country||''):lastLoc.country;
+    $('f-strava').value=r&&r.strava?r.strava:'';
+    $('f-note').value=r&&r.note?r.note:'';
+    $('paste').value='';
+    $('f-del').hidden=!r;msg('');
+  }
+  function parsePaste(s){
+    var m=/(\d{1,2})\.(\d{1,2})\.(\d{2,4})\s+\d+\s+(\d+(?:[.,]\d+)?)\s+(\d+:\d{2}(?::\d{2})?)\s+(\d{2,3})/.exec(s);
+    if(!m)return null;
+    var y=+m[3];if(y<100)y+=2000;
+    return {date:y+'-'+p2(+m[2])+'-'+p2(+m[1]),km:m[4],time:m[5],hr:m[6]};
+  }
+  function setup(){
+    $('f-type').innerHTML=TYPES.map(function(t){return '<option value="'+t[0]+'">'+esc(t[1])+'</option>'}).join('');
+    fill(null);
+    $('paste').addEventListener('input',function(){
+      var r=parsePaste($('paste').value);
+      if(r){$('f-date').value=r.date;$('f-km').value=r.km.replace('.',',');$('f-time').value=r.time;$('f-hr').value=r.hr;msg('Zeile erkannt. Prüfe die Werte und speichere.')}
+      else if($('paste').value.trim()){msg('Die Zeile konnte nicht gelesen werden. Trag die Werte unten von Hand ein.',true)}
+    });
+    $('f-clear').addEventListener('click',function(){fill(null)});
+    $('f-del').addEventListener('click',function(){
+      var d=$('f-date').value;if(!db||!state.runs[d])return;
+      sbCall(sb.from('runs').delete().eq('date',d)).then(function(){fill(null);msg('Tag gelöscht.')}).catch(function(){msg('Löschen ist fehlgeschlagen.',true)});
+    });
+    $('f').addEventListener('submit',function(ev){
+      ev.preventDefault();
+      if(!db){msg('Speichern ist hier nicht möglich.',true);return}
+      var date=$('f-date').value,km=num($('f-km').value),ts=parseTime($('f-time').value);
+      var hr=$('f-hr').value.trim()?parseInt($('f-hr').value,10):null,pain=$('f-pain').value.trim()?parseInt($('f-pain').value,10):null;
+      if(!parseIso(date)){msg('Bitte ein Datum wählen.',true);return}
+      if(km==null||km<=0||km>200){msg('Kilometer: bitte eine Zahl wie 10,02 eingeben.',true);return}
+      if(ts==null||ts<=0){msg('Zeit: bitte im Format 1:07:30 oder 67:30 eingeben.',true);return}
+      if(hr!=null&&(isNaN(hr)||hr<40||hr>230)){msg('Ø HF: bitte einen Wert zwischen 40 und 230 eingeben.',true);return}
+      if(pain!=null&&(isNaN(pain)||pain<0||pain>10)){msg('Schmerz: bitte 0 bis 10 eingeben.',true);return}
+      var type=$('f-type').value,evn=$('f-event').value.trim(),city=$('f-city').value.trim(),country=$('f-country').value.trim(),strava=$('f-strava').value.trim();
+      if(!typeLabel(type)){msg('Bitte eine Art wählen.',true);return}
+      if(strava&&!STRAVA_RE.test(strava)){msg('Der Strava-Link muss mit https://www.strava.com/activities/ beginnen.',true);return}
+      var doc={date:date,km:Math.round(km*100)/100,time_s:ts,note:$('f-note').value.trim().slice(0,300)};
+      if(hr!=null)doc.hr=hr;if(pain!=null)doc.pain=pain;
+      if(type!=='training')doc.type=type;if(evn)doc.event=evn.slice(0,80);if(city)doc.city=city.slice(0,60);if(country)doc.country=country.slice(0,60);if(strava)doc.strava=strava;
+      lastLoc={city:city,country:country};
+      $('f-save').disabled=true;
+      sbCall(sb.from('runs').upsert(doc,{onConflict:'date'})).then(function(){msg('Gespeichert.');fill(null);celebrateRun(doc)}).catch(function(){msg('Speichern ist fehlgeschlagen. Versuch es noch einmal.',true)}).then(function(){$('f-save').disabled=false});
+    });
+    $('cards').addEventListener('click',function(ev){
+      var b=ev.target.closest&&ev.target.closest('[data-edit]');if(!b)return;
+      var r=state.runs[b.getAttribute('data-edit')];if(!r)return;
+      fill(r);$('eintrag').hidden=false;$('eintrag').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+
+  render();setup();setupSongs();setupExtras();setupSeg();
+
+  function syncAuthUI(){
+    $('auth-toggle').hidden=state.canEdit;
+    $('auth-logout').hidden=!state.canEdit;
+    if(state.canEdit)$('authf').hidden=true;
+  }
+
+  async function loadAll(){
+    var rr=await sb.from('runs').select('*');
+    var sr=await sb.from('songs').select('*');
+    var cr=await sb.from('config').select('*').eq('key','contact').maybeSingle();
+    var rm={};(rr.data||[]).forEach(function(x){rm[x.date]=x});state.runs=rm;
+    var sm={};(sr.data||[]).forEach(function(x){sm[x.date]=x});state.songs=sm;
+    state.contact=(cr.data&&cr.data.value&&cr.data.value.email)||'';
+  }
+
+  (async function(){
+    db=true;
+    try{
+      var sess=await sb.auth.getSession();
+      state.canEdit=!!(sess&&sess.data&&sess.data.session);
+    }catch(e){state.canEdit=false}
+    try{await loadAll()}catch(e){}
+    state.ready=true;
+    render();syncAuthUI();
+    sb.auth.onAuthStateChange(function(ev,session){state.canEdit=!!session;render();syncAuthUI()});
+    sb.channel('db-changes')
+      .on('postgres_changes',{event:'*',schema:'public',table:'runs'},function(){loadAll().then(render)})
+      .on('postgres_changes',{event:'*',schema:'public',table:'songs'},function(){loadAll().then(render)})
+      .on('postgres_changes',{event:'*',schema:'public',table:'config'},function(){loadAll().then(render)})
+      .subscribe();
+  })();
+
+  $('auth-toggle').addEventListener('click',function(ev){
+    ev.preventDefault();$('authf').hidden=!$('authf').hidden;
+  });
+  $('authf').addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var email=$('auth-email').value.trim(),pass=$('auth-pass').value,m=$('auth-msg');
+    m.textContent='';m.className='msg';
+    sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){
+      if(res.error){m.textContent='Login fehlgeschlagen.';m.className='msg err';return}
+      $('authf').hidden=true;$('auth-pass').value='';
+    });
+  });
+  $('auth-logout').addEventListener('click',function(){sb.auth.signOut()});
+})();
+</script>
+
+</body>
+</html>
