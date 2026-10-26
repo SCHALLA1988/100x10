@@ -175,7 +175,6 @@ textarea{resize:vertical;line-height:1.4}
   <nav class="navpill" id="navpill" aria-label="Hauptnavigation">
     <a href="#raster"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg><span>100 Tage</span></a>
     <a href="#analyse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg><span>Analyse</span></a>
-    <a href="#tage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg><span>Läufe</span></a>
     <a href="#playlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg><span>Songs</span></a>
     <a href="#partner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg><span>Partner</span></a>
   </nav>
@@ -238,12 +237,6 @@ textarea{resize:vertical;line-height:1.4}
       <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>abgeschlossene Woche</span><span><i style="background:var(--acc-tint);border-color:var(--acc)"></i>laufende Woche</span></div>
     </div>
     <div class="empty" id="analyse-empty" hidden>Noch keine Woche der Streak gelaufen.</div>
-  </div></section>
-  <section id="tage"><div class="wrap">
-    <h2>Letzte Läufe</h2>
-    <p class="sub">Neueste zuerst. Läufe vor dem 01.11. gelten als Vorlauf und zählen nicht zu den 100 Tagen.</p>
-    <div class="cards" id="cards"></div>
-    <div class="btns" style="margin-top:16px"><button class="btn ghost" type="button" id="r-copy">Läufe als Tabelle kopieren</button><span class="msg" id="r-copymsg" role="status"></span></div>
   </div></section>
   <section id="meilensteine"><div class="wrap">
     <h2>Meilensteine</h2>
@@ -459,20 +452,6 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var evN=streak.filter(function(r){return r.type&&r.type!=='training'}).length;
     var tiles=[[String(done),'Tage geschafft'],[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden auf den Beinen'],[hr?String(Math.round(hr)):'–','Ø Herzfrequenz'],[pace?fmtPace(pace):'–','Ø Pace pro km'],[String(evN),'Events und Wettkämpfe'],[nc?nc+' / '+nl:'–','Städte / Länder'],[String(Object.keys(state.songs).length),'Songs in der Playlist']];
     $('tiles').innerHTML=tiles.map(function(x){return '<div class="tile reveal"><b>'+x[0]+'</b><div class="label">'+esc(x[1])+'</div></div>'}).join('');
-    // Karten
-    var last=all.slice().reverse().slice(0,6);
-    $('cards').innerHTML=last.length?last.map(function(r){
-      var d=parseIso(r.date),n=dayDiff(d,START)+1,inStreak=n>=1&&n<=DAYS;
-      var short=inStreak&&r.km<10,isEv=!!(r.type&&r.type!=='training');
-      var tags='<div class="tags">'+(isEv?'<div class="tag ev">'+esc(typeLabel(r.type))+'</div>':'')+'<div class="tag'+(short?' warn':'')+'">'+(short?'Unter 10 km':(inStreak?'Erledigt':'Vorlauf'))+'</div></div>';
-      var loc=[r.city,r.country].filter(Boolean).join(', ');
-      return '<div class="card reveal'+(isEv?' ev':'')+'"><div class="head"><div><div class="label">'+(inStreak?'Tag '+n:'Vorlauf')+' · '+esc(fmtDate(d))+'</div>'+(isEv?'<div class="evname">'+esc(r.event||typeLabel(r.type))+'</div>':'')+'<div class="big">'+esc(fmtKm(r.km))+'<small> km</small></div></div>'+tags+'</div>'
-        +(loc?'<div class="loc">'+esc(loc)+'</div>':'')
-        +'<div class="kv"><div><div class="label">Pace</div><div class="v">'+(r.time_s?fmtPace(r.time_s/r.km)+' /km':'–')+'</div></div><div><div class="label">Ø Herzfrequenz</div><div class="v">'+(r.hr?r.hr+' bpm':'–')+'</div></div><div><div class="label">Zeit</div><div class="v">'+(r.time_s?fmtTime(r.time_s):'–')+'</div></div><div><div class="label">Schmerz (0–10)</div><div class="v">'+(r.pain==null?'–':r.pain)+'</div></div></div>'
-        +(r.note?'<div class="note">'+esc(r.note)+'</div>':'')
-        +(r.strava&&STRAVA_RE.test(r.strava)?'<div><a class="ext" href="'+esc(r.strava)+'" target="_blank" rel="noopener noreferrer">In Strava öffnen</a></div>':'')
-        +(state.canEdit?'<button class="edit" type="button" data-edit="'+esc(r.date)+'">Bearbeiten</button>':'')+'</div>';
-    }).join(''):'<div class="empty">Noch kein Lauf eingetragen.'+(state.canEdit?' Trag oben den ersten Lauf ein.':'')+'</div>';
     // Events als Karten
     var evs=all.filter(function(r){return r.type&&r.type!=='training'}).reverse();
     $('events-list').innerHTML=evs.length?evs.map(function(r){
@@ -534,15 +513,16 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('prog').hidden=!sl.length;
     var nxm=MS.filter(function(m){return m>=25&&m>sIn})[0];
     $('prog').innerHTML='<div class="label">'+sIn+' von '+DAYS+' Songs'+(nxm?' · noch '+(nxm-sIn)+' bis '+esc(MSNOTE[nxm]):'')+'</div><div class="bar"><b style="left:25%"></b><b style="left:50%"></b><b style="left:75%"></b><i style="width:'+Math.min(100,sIn)+'%"></i></div>';
-    $('songs').innerHTML=sl.length?sl.map(function(s){
+    // Formulare nur für Editoren
+    var show=state.canEdit;
+    $('songs').hidden=!show;
+    $('songs').innerHTML=!show?'':(sl.length?sl.map(function(s){
       var d=parseIso(s.date),n=d?dayDiff(d,START)+1:0,inS=n>=1&&n<=DAYS,isMs=inS&&MS.indexOf(n)>=0;
       return '<div class="prow'+(isMs?' ms':'')+'"><div class="label n">'+(inS?'Tag '+n:'Vorlauf')+' · '+esc(d?fmtDate(d):s.date)+(isMs?' · '+esc(MSNOTE[n]):'')+'</div><div><div class="t">'+esc(s.title)+'</div><div class="note">'+esc(s.artist)+(state.runs[s.date]?' · '+esc(fmtKm(state.runs[s.date].km))+' km an dem Tag':'')+'</div></div><div class="ac">'
         +(s.url&&APPLE_RE.test(s.url)?'<a class="ext" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">Apple Music</a>':'')
         +(state.canEdit?'<button class="edit" type="button" data-song="'+esc(s.date)+'">Bearbeiten</button>':'')+'</div></div>';
-    }).join(''):'<div class="empty" style="border:0">Noch kein Song eingetragen.'+(state.canEdit?' Trag oben den ersten Song ein.':'')+'</div>';
-    $('s-copy').hidden=!sl.length;$('s-copy2').hidden=!sl.length;
-    // Formulare nur für Editoren
-    var show=state.canEdit;
+    }).join(''):'<div class="empty" style="border:0">Noch kein Song eingetragen. Trag oben den ersten Song ein.</div>');
+    $('s-copy').hidden=!show||!sl.length;$('s-copy2').hidden=!show||!sl.length;
     $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann erscheint der Player oben.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
     $('s-tip').hidden=!show;
     $('f').hidden=!show;$('sf').hidden=!show;
@@ -588,11 +568,6 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('s-copy').addEventListener('click',function(){
       var text=Object.keys(state.songs).sort().map(function(k,i){var s=state.songs[k];return (i+1)+'. '+s.title+' – '+s.artist}).join('\n');
       copyText(text,$('s-copymsg'),'Liste kopiert.');
-    });
-    $('r-copy').addEventListener('click',function(){
-      var head=['Datum','Tag','Kilometer','Zeit','Pace','HF','Schmerz','Art','Event','Stadt','Land','Strava','Notiz'].join('\t');
-      var rows=runsList().map(function(r){var d=parseIso(r.date),n=dayDiff(d,START)+1;return [r.date,(n>=1&&n<=DAYS)?n:'',String(r.km).replace('.',','),r.time_s?fmtTime(r.time_s):'',r.time_s?fmtPace(r.time_s/r.km):'',r.hr||'',r.pain==null?'':r.pain,typeLabel(r.type||'training'),r.event||'',r.city||'',r.country||'',r.strava||'',r.note||''].map(cell).join('\t')});
-      copyText([head].concat(rows).join('\n'),$('r-copymsg'),'Tabelle kopiert. In Numbers oder Excel einfügen.');
     });
     $('cf').addEventListener('submit',function(ev){
       ev.preventDefault();
@@ -660,6 +635,9 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
       else if($('paste').value.trim()){msg('Die Zeile konnte nicht gelesen werden. Trag die Werte unten von Hand ein.',true)}
     });
     $('f-clear').addEventListener('click',function(){fill(null)});
+    $('f-date').addEventListener('change',function(){
+      var r=state.runs[$('f-date').value];if(r)fill(r);
+    });
     $('f-del').addEventListener('click',function(){
       var d=$('f-date').value;if(!db||!state.runs[d])return;
       sbCall(sb.from('runs').delete().eq('date',d)).then(function(){fill(null);msg('Tag gelöscht.')}).catch(function(){msg('Löschen ist fehlgeschlagen.',true)});
@@ -684,15 +662,10 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
       $('f-save').disabled=true;
       sbCall(sb.from('runs').upsert(doc,{onConflict:'date'})).then(function(){msg('Gespeichert.');fill(null);celebrateRun(doc)}).catch(function(){msg('Speichern ist fehlgeschlagen. Versuch es noch einmal.',true)}).then(function(){$('f-save').disabled=false});
     });
-    $('cards').addEventListener('click',function(ev){
-      var b=ev.target.closest&&ev.target.closest('[data-edit]');if(!b)return;
-      var r=state.runs[b.getAttribute('data-edit')];if(!r)return;
-      fill(r);$('eintrag').hidden=false;$('eintrag').scrollIntoView({behavior:'smooth',block:'start'});
-    });
   }
 
   function setupNavSpy(){
-    var ids=['raster','analyse','tage','playlist','partner'];
+    var ids=['raster','analyse','playlist','partner'];
     var links={};
     ids.forEach(function(id){links[id]=document.querySelector('.navpill a[href="#'+id+'"]')});
     if(!('IntersectionObserver' in window))return;
