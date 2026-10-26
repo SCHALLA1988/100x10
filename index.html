@@ -34,9 +34,11 @@ a{color:var(--acc-ink);text-decoration:none}a:hover{color:var(--acc)}
 .brand .brand-sub{font-weight:500;font-size:13px;letter-spacing:0;color:var(--mute)}
 @media (max-width:640px){.brand .brand-sub{display:none}}
 .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(216,255,79,.25)}
-.nav{display:flex;flex-wrap:wrap;gap:4px 4px;font-size:14px;color:var(--mute)}
-.nav a{padding:7px 12px;border-radius:999px;white-space:nowrap}
-.nav a:hover{background:var(--surface);color:var(--fg)}
+.navpill{display:inline-flex;gap:2px;background:var(--surface);border-radius:999px;padding:6px;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 10px 24px -16px rgba(30,20,90,.18);max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.navpill a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 15px;border-radius:999px;color:var(--mute);font-size:11px;font-weight:600;letter-spacing:.005em;white-space:nowrap;flex:none;transition:background .18s ease,color .18s ease}
+.navpill a svg{width:19px;height:19px}
+.navpill a:hover{color:var(--fg)}
+.navpill a.active{background:var(--acc-tint);color:var(--acc-ink)}
 .thsp{display:inline-block;width:.2em}
 .label{font-size:12.5px;letter-spacing:.01em;color:var(--mute)}
 .hero{padding-block:56px 32px}.hero .label{font-weight:700}
@@ -166,13 +168,19 @@ textarea{resize:vertical;line-height:1.4}
 .mark svg{display:block}
 .mark .markdot{position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px #fff}
 @media (max-width:900px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile{padding:16px 14px}.tile b{font-size:32px}}
-@media (max-width:640px){.nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;width:100%;padding-bottom:6px}.btn{font-size:14px;padding:10px 16px}h2{font-size:20px}#sp .row{grid-template-columns:1fr}}
+@media (max-width:640px){.navpill{width:100%}.btn{font-size:14px;padding:10px 16px}h2{font-size:20px}}
 </style>
 </head>
 <body>
 <div class="top wrap">
   <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="5"></rect><rect x="7.5" y="9.5" width="9" height="5" rx="2.5"></rect></svg><span class="markdot" aria-hidden="true"></span></span><span class="wordmark">100<span class="x">×</span>10</span><span class="brand-sub">100 Tage · 10 km</span></div>
-  <nav class="nav"><a href="#eintrag" id="nav-eintrag">Lauf eintragen</a><a href="#raster">100 Tage</a><a href="#analyse">Analyse</a><a href="#tage">Letzte Läufe</a><a href="#meilensteine">Meilensteine</a><a href="#finishes">Finishes</a><a href="#playlist">Songs</a><a href="#community">Community Run</a><a href="#partner">Partner</a><a href="#regeln">Regeln</a></nav>
+  <nav class="navpill" id="navpill" aria-label="Hauptnavigation">
+    <a href="#raster"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg><span>100 Tage</span></a>
+    <a href="#analyse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg><span>Analyse</span></a>
+    <a href="#tage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg><span>Läufe</span></a>
+    <a href="#playlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg><span>Songs</span></a>
+    <a href="#partner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg><span>Partner</span></a>
+  </nav>
 </div>
 
 <main>
@@ -539,7 +547,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var show=state.canEdit;
     $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann erscheint der Player oben.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
     $('s-tip').hidden=!show;
-    $('f').hidden=!show;$('sf').hidden=!show;$('nav-eintrag').hidden=!show;
+    $('f').hidden=!show;$('sf').hidden=!show;
     $('eintrag').hidden=!show&&state.ready;
     // Kontakt
     var ce=MAIL_RE.test(state.contact||'')?state.contact:'';
@@ -685,7 +693,23 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     });
   }
 
-  render();setup();setupSongs();setupExtras();setupSeg();
+  function setupNavSpy(){
+    var ids=['raster','analyse','tage','playlist','partner'];
+    var links={};
+    ids.forEach(function(id){links[id]=document.querySelector('.navpill a[href="#'+id+'"]')});
+    if(!('IntersectionObserver' in window))return;
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          var id=en.target.id;
+          ids.forEach(function(k){if(links[k])links[k].classList.toggle('active',k===id)});
+        }
+      });
+    },{rootMargin:'-35% 0px -55% 0px',threshold:0});
+    ids.forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
+  }
+
+  render();setup();setupSongs();setupExtras();setupSeg();setupNavSpy();
 
   function syncAuthUI(){
     $('auth-toggle').hidden=state.canEdit;
