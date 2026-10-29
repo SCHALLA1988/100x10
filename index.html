@@ -75,8 +75,15 @@ h1{margin:18px 0 0;font-family:var(--display);font-weight:650;letter-spacing:-.0
 .year::before{content:"";position:absolute;inset:0;background:radial-gradient(380px 260px at 0% 0%,rgba(255,255,255,.22),transparent 70%),radial-gradient(320px 260px at 100% 100%,rgba(10,2,60,.35),transparent 70%);pointer-events:none}
 .year>*{position:relative;z-index:1}
 .year .yh{font-size:12px;color:rgba(255,255,255,.75);font-weight:600;letter-spacing:.01em;text-transform:uppercase}
-#pill{display:block;font-family:var(--display);font-weight:650;letter-spacing:-.035em;font-size:clamp(26px,3.4vw,38px);line-height:1.08;margin-top:10px}
+.ybig{display:flex;align-items:baseline;gap:9px;margin-top:10px}
+.ybig b{font-family:var(--display);font-weight:650;letter-spacing:-.045em;font-size:clamp(44px,6vw,66px);line-height:.95;color:#fff}
+.ybig small{font-size:19px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:-.01em}
 #pill-sub{display:block;margin-top:8px;font-size:13.5px;color:rgba(255,255,255,.82)}
+.ystats{display:flex;gap:22px;margin-top:18px;flex-wrap:wrap}
+.ystats div{display:flex;flex-direction:column;gap:2px}
+.ystats b{font-family:var(--display);font-weight:640;letter-spacing:-.02em;font-size:19px;color:#fff}
+.ystats small{font-size:11px;color:rgba(255,255,255,.6)}
+.ychart{margin-top:18px;display:block;width:100%;height:auto}
 .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding-bottom:48px}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:6px;min-width:0;box-shadow:var(--sh);transition:transform .22s var(--ease),box-shadow .22s}
 .tile:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
@@ -222,8 +229,10 @@ textarea{resize:vertical;line-height:1.4}
       </div>
       <div class="year gc-5">
         <div class="yh">Streak-Status</div>
-        <div id="pill">Start am 01.11.</div>
+        <div class="ybig"><b id="year-num">0</b><small id="year-unit">Tage</small></div>
         <div id="pill-sub"></div>
+        <div class="ystats" id="year-stats"></div>
+        <svg class="ychart" id="year-chart" viewBox="0 0 400 86" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
       </div>
     </div>
     <div class="wrap"><div class="alert" id="alert" role="status" hidden></div></div>
@@ -436,14 +445,37 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     cheer('Song '+cnt+': '+s.title,isMs);
   }
 
+  function weeklyTotals(streak){
+    var totalWeeks=Math.ceil(DAYS/7),wk=[];for(var w=0;w<totalWeeks;w++)wk.push(0);
+    streak.forEach(function(r){var d=parseIso(r.date),n=dayDiff(d,START)+1,wi=Math.floor((n-1)/7);if(wi>=0&&wi<totalWeeks)wk[wi]+=r.km});
+    return wk;
+  }
+
+  function renderYearChart(streak,tn){
+    var totalWeeks=Math.ceil(DAYS/7);
+    var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
+    var svg=$('year-chart');
+    if(curWeek<1){svg.innerHTML='';return}
+    var wk=weeklyTotals(streak),shown=wk.slice(0,curWeek);
+    var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
+    var padL=2,padR=2,plotW=400-padL-padR,gap=Math.max(3,8-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=50,y0=72;
+    var bestI=0;shown.forEach(function(v,i){if(v>shown[bestI])bestI=i});
+    var parts=[];
+    shown.forEach(function(v,i){
+      var h=Math.round(v/maxWk*maxH),x=padL+i*(barW+gap),y=y0-h,isBest=i===bestI&&v>0;
+      parts.push('<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(h,2)+'" rx="3" fill="'+(isBest?'var(--lime)':'rgba(255,255,255,.4)')+'"></rect>');
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+14)+'" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)">W'+(i+1)+'</text>');
+    });
+    svg.innerHTML=parts.join('');
+  }
+
   function renderWeekChart(streak,tn){
     var totalWeeks=Math.ceil(DAYS/7);
     var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
     var svg=$('wk-chart');
     if(curWeek<1){svg.innerHTML='';$('analyse-empty').hidden=false;return}
     $('analyse-empty').hidden=true;
-    var wk=[];for(var w=0;w<totalWeeks;w++)wk.push(0);
-    streak.forEach(function(r){var d=parseIso(r.date),n=dayDiff(d,START)+1,wi=Math.floor((n-1)/7);if(wi>=0&&wi<totalWeeks)wk[wi]+=r.km});
+    var wk=weeklyTotals(streak);
     var shown=wk.slice(0,curWeek);
     var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
     var padL=20,padR=20,plotW=1000-padL-padR,gap=Math.max(4,10-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=160,y0=196;
@@ -484,10 +516,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var all=runsList(), t=today();
     var streak=all.filter(function(r){var d=parseIso(r.date);if(!d)return false;var n=dayDiff(d,START)+1;return n>=1&&n<=DAYS});
     var started=dayDiff(t,START)>=0;
-    // Kopf
-    var pill=$('pill'),sub=$('pill-sub');
-    if(!started){var left=-dayDiff(t,START);pill.textContent='Start am 01.11.';sub.textContent=left===1?'Noch 1 Tag bis zum Start':'Noch '+left+' Tage bis zum Start'}
-    else{var n=Math.min(DAYS,dayDiff(t,START)+1);pill.textContent='Tag '+n+' von '+DAYS;sub.textContent=n>=DAYS?'Letzter Tag':'Noch '+(DAYS-n)+' Tage bis zum Ziel'}
+    var tn=dayDiff(t,START)+1;
     // Kennzahlen
     var done=streak.filter(function(r){return r.km>=10}).length;
     var km=streak.reduce(function(a,r){return a+r.km},0);
@@ -501,6 +530,13 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var evN=streak.filter(function(r){return r.type&&r.type!=='training'}).length;
     var tiles=[[String(done),'Tage geschafft'],[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden auf den Beinen'],[hr?String(Math.round(hr)):'–','Ø Herzfrequenz'],[pace?fmtPace(pace):'–','Ø Pace pro km'],[String(evN),'Events und Wettkämpfe'],[nc?nc+' / '+nl:'–','Städte / Länder'],[String(Object.keys(state.songs).length),'Songs in der Playlist']];
     $('tiles').innerHTML=tiles.map(function(x){return '<div class="tile reveal"><b>'+x[0]+'</b><div class="label">'+esc(x[1])+'</div></div>'}).join('');
+    // Streak-Status-Karte
+    var sub=$('pill-sub');
+    if(!started){var left=-dayDiff(t,START);$('year-num').textContent='0';$('year-unit').textContent='Tage';sub.textContent=left===1?'Noch 1 Tag bis zum Start':'Noch '+left+' Tage bis zum Start'}
+    else{var nDay=Math.min(DAYS,tn);$('year-num').textContent=String(nDay);$('year-unit').textContent='/ '+DAYS+' Tagen';sub.textContent=nDay>=DAYS?'Letzter Tag':'Noch '+(DAYS-nDay)+' Tage bis zum Ziel'}
+    var ystats=[[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden'],[String(DAYS-Math.min(DAYS,Math.max(tn,0))),'Tage bis Ziel']];
+    $('year-stats').innerHTML=ystats.map(function(x){return '<div><b>'+x[0]+'</b><small>'+esc(x[1])+'</small></div>'}).join('');
+    renderYearChart(streak,tn);
     // Events als Karten
     var evs=all.filter(function(r){return r.type&&r.type!=='training'}).reverse();
     $('events-list').innerHTML=evs.length?evs.map(function(r){
