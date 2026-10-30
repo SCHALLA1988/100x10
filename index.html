@@ -278,14 +278,7 @@ textarea{resize:vertical;line-height:1.4}
   </div></section>
   <section id="finishes"><div class="wrap">
     <h2>Finishes</h2>
-    <p class="sub">Events auf dem Weg zu den 100 Tagen, und wo die Streak gelaufen wurde.</p>
-    <div class="seg-wrap"><div class="seg" id="fin-seg" role="tablist">
-      <button type="button" role="tab" data-pane="events" class="on">Events</button>
-      <button type="button" role="tab" data-pane="orte">Orte</button>
-      <div class="thumb" id="fin-thumb"></div>
-    </div></div>
-    <div class="seg-pane on" id="pane-events"><div class="fin" id="events-list"></div></div>
-    <div class="seg-pane" id="pane-orte"><div class="cty" id="orte-list"></div></div>
+    <p class="sub">Folgt.</p>
   </div></section>
   <div class="wrap gridc">
   <section id="playlist" class="gc-7">
@@ -302,11 +295,10 @@ textarea{resize:vertical;line-height:1.4}
   </section>
   <section id="community" class="gc-5">
     <h2>100x10 Community Run</h2>
-    <p class="sub">Testweise Platzhalter – echte Termine und Orte folgen noch. Die Idee: einmal die Woche zusammen laufen statt allein.</p>
+    <p class="sub">Alle 10 Läufe zusammen statt allein. Details folgen.</p>
     <div class="card ev reveal">
-      <div class="head"><div><div class="label">Platzhalter · noch nicht final</div><div class="evname">Jeden Sonntag · 10:00 Uhr</div></div><div class="tag ev">Community</div></div>
-      <div class="loc">Treffpunkt: Tiergarten, Brandenburger Tor (Beispiel)</div>
-      <div class="note">10 km, lockeres Tempo, jede:r darf mit. Genaue Strecke und Treffpunkt stehen hier, sobald final.</div>
+      <div class="head"><div><div class="evname">Alle 10 Läufe</div></div><div class="tag ev">Community</div></div>
+      <div class="loc">Treffpunkt wird noch veröffentlicht</div>
     </div>
   </section>
   </div>
@@ -514,26 +506,6 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var ystats=[[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden'],[String(DAYS-Math.min(DAYS,Math.max(tn,0))),'Tage bis Ziel']];
     $('year-stats').innerHTML=ystats.map(function(x){return '<div><b>'+x[0]+'</b><small>'+esc(x[1])+'</small></div>'}).join('');
     renderYearChart(streak,tn);
-    // Events als Karten
-    var evs=all.filter(function(r){return r.type&&r.type!=='training'}).reverse();
-    $('events-list').innerHTML=evs.length?evs.map(function(r){
-      var d=parseIso(r.date),n=dayDiff(d,START)+1,inS=n>=1&&n<=DAYS,loc=[r.city,r.country].filter(Boolean).join(', ');
-      return '<div class="pass reveal"><div class="pt"><span>'+esc(typeLabel(r.type))+'</span><span>'+esc(fmtDateY(d))+'</span></div><div class="mid"><div class="nm">'+esc(r.event||typeLabel(r.type))+'</div><div class="loc">'+esc(loc||'Ort offen')+(inS?' · Tag '+n:'')+'</div></div><div class="bot"><div><div class="label">Distanz</div><div class="v">'+esc(fmtKm(r.km))+' km</div></div><div><div class="label">Zeit</div><div class="v">'+(r.time_s?fmtTime(r.time_s):'–')+'</div></div><div><div class="label">Pace</div><div class="v">'+(r.time_s?fmtPace(r.time_s/r.km):'–')+'</div></div></div></div>';
-    }).join(''):'<div class="empty" style="grid-column:1/-1">Noch kein Event.'+(state.canEdit?' Wähle beim Lauf eine Art wie Nachtlauf oder Halbmarathon, dann erscheint hier die Karte dazu.':'')+'</div>';
-    // Orte nach Land und Stadt
-    var byC={};
-    all.forEach(function(r){
-      var cn=(r.country||'').trim(),ci=(r.city||'').trim();if(!cn&&!ci)return;
-      var ck=cn.toLowerCase()||'?',c=byC[ck]||(byC[ck]={name:cn||'Land offen',km:0,n:0,cities:{}});
-      c.km+=r.km;c.n++;
-      var ik=ci.toLowerCase()||'?',x=c.cities[ik]||(c.cities[ik]={name:ci||'Stadt offen',km:0,n:0});x.km+=r.km;x.n++;
-    });
-    var cks=Object.keys(byC).sort(function(a,b){return byC[b].km-byC[a].km});
-    $('orte-list').innerHTML=cks.length?cks.map(function(k){
-      var c=byC[k];
-      return '<div class="card reveal"><div class="head"><div class="nm">'+esc(c.name)+'</div><div class="tag">'+c.n+(c.n===1?' Lauf':' Läufe')+'</div></div><div class="mono msg">'+c.km.toFixed(0)+' km</div><ul>'
-        +Object.keys(c.cities).sort(function(a,b){return c.cities[b].km-c.cities[a].km}).map(function(ik){var x=c.cities[ik];return '<li><span>'+esc(x.name)+'</span><span>'+x.n+(x.n===1?' Lauf':' Läufe')+' · '+x.km.toFixed(0)+' km</span></li>'}).join('')+'</ul></div>';
-    }).join(''):'<div class="empty" style="grid-column:1/-1">Noch keine Orte.'+(state.canEdit?' Trag beim nächsten Lauf Stadt und Land ein.':'')+'</div>';
     // Warnhinweis bei Schmerz
     var l1=all[all.length-1],l2=all[all.length-2],am='';
     if(l1&&parseIso(l1.date)&&dayDiff(t,parseIso(l1.date))<=2){
@@ -641,24 +613,6 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     });
   }
 
-  function setupSeg(){
-    var seg=$('fin-seg'),thumb=$('fin-thumb'),btns=[].slice.call(seg.querySelectorAll('button'));
-    function place(){
-      var on=seg.querySelector('button.on');if(!on)return;
-      thumb.style.left=(on.offsetLeft)+'px';thumb.style.width=on.offsetWidth+'px';
-    }
-    btns.forEach(function(b){
-      b.addEventListener('click',function(){
-        btns.forEach(function(x){x.classList.toggle('on',x===b)});
-        $('pane-events').classList.toggle('on',b.getAttribute('data-pane')==='events');
-        $('pane-orte').classList.toggle('on',b.getAttribute('data-pane')==='orte');
-        place();
-      });
-    });
-    place();
-    window.addEventListener('resize',place);
-  }
-
   function setupExtras(){
     $('s-copy2').addEventListener('click',function(){
       var text=Object.keys(state.songs).sort().map(function(k,i){var s=state.songs[k];return (i+1)+'. '+s.title+' – '+s.artist+(s.url&&APPLE_RE.test(s.url)?' '+s.url:'')}).join('\n');
@@ -742,7 +696,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     ids.forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
   }
 
-  render();setup();setupSongs();setupExtras();setupSeg();setupNavSpy();
+  render();setup();setupSongs();setupExtras();setupNavSpy();
 
   function syncAuthUI(){
     $('auth-toggle').hidden=state.canEdit;
