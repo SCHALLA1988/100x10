@@ -39,7 +39,7 @@ a{color:var(--acc-ink);text-decoration:none}a:hover{color:var(--acc)}
 
 /* Top-Navigation, voll oben, keine Sidebar */
 .topbar{position:sticky;top:0;z-index:30;background:rgba(242,241,246,.86);-webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4)}
-.topbar .wrap{display:flex;align-items:center;gap:16px;padding-top:16px;padding-bottom:16px;flex-wrap:wrap}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:16px;padding-bottom:16px;flex-wrap:wrap}
 .topbar .wm{display:flex;align-items:center;gap:9px;flex:none}
 .navc{display:flex;gap:2px;background:var(--card);border-radius:999px;box-shadow:var(--sh);padding:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
 .navc a{position:relative;display:flex;align-items:center;gap:8px;height:38px;padding:0 15px;border-radius:999px;color:var(--mute);text-decoration:none;font-weight:600;font-size:13px;white-space:nowrap;flex:none;transition:background .2s ease,color .2s ease}
@@ -110,12 +110,22 @@ h2{margin:0 0 4px;font-family:var(--display);font-weight:650;letter-spacing:-.02
 .cell.best{outline:2px solid var(--lime);outline-offset:-3px}
 .legend{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--mute)}
 .legend i{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border-radius:4px;border:2px solid transparent}
-.ms-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
-.ms-row>div{padding:18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.ms-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.ms-row>div{padding:18px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.ms-row>div:last-child{border-right:none}
 .ms-row b{font-family:var(--display);font-weight:650;letter-spacing:-.02em;font-size:30px;line-height:1;white-space:nowrap}
+@media (max-width:900px){.ms-row{grid-template-columns:repeat(4,minmax(0,1fr))}.ms-row>div{border-bottom:1px solid var(--line)}.ms-row>div:nth-child(4n){border-right:none}.ms-row>div:nth-last-child(-n+4){border-bottom:none}}
+@media (max-width:520px){.ms-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ms-row>div{border-bottom:1px solid var(--line)}.ms-row>div:nth-child(4n){border-right:1px solid var(--line)}.ms-row>div:nth-child(2n){border-right:none}.ms-row>div:nth-last-child(-n+1){border-bottom:none}.ms-row b{font-size:24px}}
 .cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
 .cmp b{font-family:var(--display);font-weight:650;letter-spacing:-.03em;font-size:36px;line-height:1}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.rulelist{background:var(--card);border-radius:20px;border:1px solid var(--line);overflow:hidden}
+.rulerow{display:flex;align-items:baseline;gap:16px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.rulerow:last-child{border-bottom:none}
+.rulerow b{font-family:var(--display);font-weight:700;font-size:13px;color:var(--acc);flex:none;width:20px}
+.rulerow .t{font-weight:650;font-size:15px;color:var(--fg);letter-spacing:-.01em}
+.rulerow .d{font-size:13px;color:var(--mute);margin-top:2px}
+@media (max-width:640px){.rulerow{padding:14px 16px}}
 .rules h3{margin:0 0 6px;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:-.01em}
 .rules p{margin:0;font-size:14px;line-height:1.45;color:var(--soft)}
 form{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:22px;display:grid;gap:16px;box-shadow:0 0 0 1px rgba(20,16,48,.035),0 1px 2px rgba(20,16,48,.04),0 12px 32px -18px rgba(30,20,90,.16)}
@@ -315,11 +325,13 @@ textarea{resize:vertical;line-height:1.4}
   </div></section>
   <section id="regeln"><div class="wrap">
     <h2>Regeln</h2>
-    <div class="rules">
-      <div class="card reveal"><h3>Gültiger Tag</h3><p>Mindestens zehn Kilometer am Kalendertag, Tempo egal.</p></div>
-      <div class="card reveal"><h3>Tempo</h3><p>Locker laufen, Herzfrequenz bis 138 bis 140, keine Intervalle.</p></div>
-      <div class="card reveal"><h3>Stoppregel</h3><p>Bei Schmerz, der am nächsten Morgen noch da ist, oder bei Infekt wird pausiert.</p></div>
-      <div class="card reveal"><h3>Joker</h3><p>Kein Joker. Ein Tag mit weniger als 10 km zählt nicht für die Streak.</p></div>
+    <div class="rulelist reveal">
+      <div class="rulerow"><b>01</b><div><div class="t">10 km, jeden Tag.</div><div class="d">Kein Ruhetag.</div></div></div>
+      <div class="rulerow"><b>02</b><div><div class="t">Von 00:01 bis 23:59.</div><div class="d">Mindestens 10 km innerhalb des Kalendertags, Tempo egal.</div></div></div>
+      <div class="rulerow"><b>03</b><div><div class="t">Draußen oder Laufband.</div><div class="d">Egal wo – Hauptsache gelaufen.</div></div></div>
+      <div class="rulerow"><b>04</b><div><div class="t">Events zählen als ein Lauf.</div><div class="d">Ein Marathon ist ein Tag, nicht vier.</div></div></div>
+      <div class="rulerow"><b>05</b><div><div class="t">Community Runs zählen.</div><div class="d">Gemeinsam gelaufen ist auch gelaufen.</div></div></div>
+      <div class="rulerow"><b>06</b><div><div class="t">Es wird gelaufen.</div><div class="d">Kein Gehen, kein Rad, kein Ersatz.</div></div></div>
     </div>
   </div></section>
   </div>
