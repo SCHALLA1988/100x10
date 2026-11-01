@@ -378,6 +378,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
   function fmtDec(n,dp){return n.toFixed(dp==null?1:dp).replace('.',',')}
   function groupThsp(s){var out='';for(var i=0;i<s.length;i++){if(i>0&&(s.length-i)%3===0)out+='<span class="thsp"></span>';out+=s[i]}return out}
   function fmtBig(n){return groupThsp(String(Math.round(n)))}
+  function fmtKmBig(n){var s=n.toFixed(1).replace('.',','),p=s.split(',');return groupThsp(p[0])+','+p[1]}
   function num(s){var v=parseFloat(String(s).replace(',','.'));return isFinite(v)?v:null}
   function parseTime(s){
     var t=String(s||'').trim().split(':').map(function(x){return parseInt(x,10)});
@@ -464,7 +465,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     shown.forEach(function(v,i){
       var h=Math.round(v/maxWk*maxH),x=padL+i*(barW+gap),y=y0-h,isCur=lastInProgress&&i===shown.length-1;
       parts.push('<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(h,0)+'" rx="5" fill="'+(isCur?'var(--acc-tint)':'var(--acc)')+'" stroke="'+(isCur?'var(--acc)':'none')+'" stroke-width="'+(isCur?'1.5':'0')+'" stroke-dasharray="'+(isCur?'4 3':'0')+'"></rect>');
-      parts.push('<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" font-size="15" font-weight="650" fill="var(--fg)" style="font-family:var(--display)">'+(v>0?String(Math.round(v)):'–')+'</text>');
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" font-size="15" font-weight="650" fill="var(--fg)" style="font-family:var(--display)">'+(v>0?fmtDec(v,1):'–')+'</text>');
       parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+20)+'" text-anchor="middle" font-size="12.5" fill="var(--mute)">W'+(i+1)+'</text>');
     });
     svg.innerHTML=parts.join('');
@@ -508,13 +509,13 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var cities={},countries={};streak.forEach(function(r){if(r.city)cities[String(r.city).trim().toLowerCase()]=1;if(r.country)countries[String(r.country).trim().toLowerCase()]=1});
     var nc=Object.keys(cities).length,nl=Object.keys(countries).length;
     var evN=streak.filter(function(r){return r.type&&r.type!=='training'}).length;
-    var tiles=[[String(done),'Tage geschafft'],[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden auf den Beinen'],[hr?String(Math.round(hr)):'–','Ø Herzfrequenz'],[pace?fmtPace(pace):'–','Ø Pace pro km'],[String(evN),'Events und Wettkämpfe'],[nc?nc+' / '+nl:'–','Städte / Länder'],[String(Object.keys(state.songs).length),'Songs in der Playlist']];
+    var tiles=[[String(done),'Tage geschafft'],[fmtKmBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden auf den Beinen'],[hr?String(Math.round(hr)):'–','Ø Herzfrequenz'],[pace?fmtPace(pace):'–','Ø Pace pro km'],[String(evN),'Events und Wettkämpfe'],[nc?nc+' / '+nl:'–','Städte / Länder'],[String(Object.keys(state.songs).length),'Songs in der Playlist']];
     $('tiles').innerHTML=tiles.map(function(x){return '<div class="tile reveal"><b>'+x[0]+'</b><div class="label">'+esc(x[1])+'</div></div>'}).join('');
     // Streak-Status-Karte
     var sub=$('pill-sub');
     if(!started){var left=-dayDiff(t,START);$('year-num').textContent='0';$('year-unit').textContent='Tage';sub.textContent=left===1?'Noch 1 Tag bis zum Start':'Noch '+left+' Tage bis zum Start'}
     else{var nDay=Math.min(DAYS,tn);$('year-num').textContent=String(nDay);$('year-unit').textContent='/ '+DAYS+' Tagen';sub.textContent=nDay>=DAYS?'Letzter Tag':'Noch '+(DAYS-nDay)+' Tage bis zum Ziel'}
-    var ystats=[[fmtBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden'],[String(DAYS-Math.min(DAYS,Math.max(tn,0))),'Tage bis Ziel']];
+    var ystats=[[fmtKmBig(km),'Kilometer'],[fmtDec(sec/3600,1),'Stunden'],[String(DAYS-Math.min(DAYS,Math.max(tn,0))),'Tage bis Ziel']];
     $('year-stats').innerHTML=ystats.map(function(x){return '<div><b>'+x[0]+'</b><small>'+esc(x[1])+'</small></div>'}).join('');
     renderYearChart(streak,tn);
     // Warnhinweis bei Schmerz
