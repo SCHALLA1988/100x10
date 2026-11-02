@@ -347,10 +347,10 @@ textarea{resize:vertical;line-height:1.4}
   <div class="label" id="auth-box">
     <a href="#" id="auth-toggle">Admin-Login</a>
     <button class="btn ghost" id="auth-logout" type="button" hidden>Ausloggen</button>
-    <form id="authf" hidden autocomplete="off" style="margin-top:10px;max-width:240px;gap:8px">
-      <input id="auth-email" type="email" placeholder="E-Mail" autocomplete="username">
-      <input id="auth-pass" type="password" placeholder="Passwort" autocomplete="current-password">
-      <div class="btns"><button class="btn ghost" type="submit">Einloggen</button><span class="msg" id="auth-msg" role="status"></span></div>
+    <form id="authf" hidden autocomplete="off" style="margin-top:10px;max-width:200px;gap:6px;padding:14px;border-radius:16px;box-shadow:none;background:var(--card);border:1px solid var(--line)">
+      <input id="auth-email" type="email" placeholder="E-Mail" autocomplete="username" style="font-size:13px;padding:9px 10px">
+      <input id="auth-pass" type="password" placeholder="Passwort" autocomplete="current-password" style="font-size:13px;padding:9px 10px">
+      <div class="btns"><button class="btn ghost" type="submit" style="font-size:13px;padding:8px 14px">Einloggen</button><span class="msg" id="auth-msg" role="status"></span></div>
     </form>
   </div>
 </div></footer>
@@ -658,13 +658,13 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('prog').innerHTML='<div class="label">'+sIn+' von '+DAYS+' Songs'+(nxm?' · noch '+(nxm-sIn)+' bis '+esc(MSNOTE[nxm]):'')+'</div><div class="bar"><b style="left:25%"></b><b style="left:50%"></b><b style="left:75%"></b><i style="width:'+Math.min(100,sIn)+'%"></i></div>';
     // Formulare nur für Editoren
     var show=state.canEdit;
-    $('songs').hidden=!show;
-    $('songs').innerHTML=!show?'':(sl.length?sl.map(function(s){
+    $('songs').hidden=false;
+    $('songs').innerHTML=sl.length?sl.map(function(s){
       var d=parseIso(s.date),n=d?dayDiff(d,START)+1:0,inS=n>=1&&n<=DAYS,isMs=inS&&MS.indexOf(n)>=0;
       return '<div class="prow'+(isMs?' ms':'')+'"><div class="label n">'+(inS?'Tag '+n:'Vorlauf')+' · '+esc(d?fmtDate(d):s.date)+(isMs?' · '+esc(MSNOTE[n]):'')+'</div><div><div class="t">'+esc(s.title)+'</div><div class="note">'+esc(s.artist)+(state.runs[s.date]?' · '+esc(fmtKm(state.runs[s.date].km))+' km an dem Tag':'')+'</div></div><div class="ac">'
         +(s.url&&APPLE_RE.test(s.url)?'<a class="ext" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">Apple Music</a>':'')
         +(state.canEdit?'<button class="edit" type="button" data-song="'+esc(s.date)+'">Bearbeiten</button>':'')+'</div></div>';
-    }).join(''):'<div class="empty" style="border:0">Noch kein Song eingetragen. Trag oben den ersten Song ein.</div>');
+    }).join(''):'<div class="empty" style="border:0">Noch kein Song eingetragen.</div>';
     $('s-copy').hidden=!show||!sl.length;$('s-copy2').hidden=!show||!sl.length;
     $('song-sub').textContent=show?'Pro Tag ein Song, zusammen die Playlist der 100 Tage. Trag Titel, Künstler und den Link aus Apple Music ein (Teilen, Link kopieren), dann erscheint der Player oben.':'Pro Tag ein Song, zusammen die Playlist der 100 Tage.';
     $('s-tip').hidden=!show;
