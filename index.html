@@ -226,7 +226,7 @@ textarea{resize:vertical;line-height:1.4}
         <div class="ybig"><b id="year-num">0</b><small id="year-unit">Tage</small></div>
         <div id="pill-sub"></div>
         <div class="ystats" id="year-stats"></div>
-        <svg class="ychart" id="year-chart" viewBox="0 0 400 86" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
+        <svg class="ychart" id="year-chart" viewBox="0 0 400 108" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
       </div>
     </div>
     <div class="wrap"><div class="alert" id="alert" role="status" hidden></div></div>
@@ -277,8 +277,8 @@ textarea{resize:vertical;line-height:1.4}
     <h2>Wochenumfang</h2>
     <p class="sub">Kilometer pro Woche der Streak, Woche 1 beginnt am 01.11.</p>
     <div class="card reveal" style="padding:24px 20px 16px">
-      <svg id="wk-chart" viewBox="0 0 1000 260" style="width:100%;height:auto;display:block" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
-      <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>abgeschlossene Woche</span><span><i style="background:var(--acc-tint);border-color:var(--acc)"></i>laufende Woche</span></div>
+      <svg id="wk-chart" viewBox="0 0 1000 300" style="width:100%;height:auto;display:block" role="img" aria-label="Kilometer pro Woche der Streak"></svg>
+      <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>abgeschlossene Woche</span><span><i style="background:var(--acc-tint);border-color:var(--acc)"></i>laufende Woche</span><span><i style="background:var(--lime)"></i>beste Woche</span></div>
     </div>
     <div class="empty" id="analyse-empty" hidden>Noch keine Woche der Streak gelaufen.</div>
   </div></section>
@@ -429,6 +429,17 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     return wk;
   }
 
+  function isoFaces(x,y0,w,h,dx,dy){
+    var tl=x+','+(y0-h), tr=(x+w)+','+(y0-h), br=(x+w)+','+y0, bl=x+','+y0;
+    var btl=(x+dx)+','+(y0-h+dy), btr=(x+w+dx)+','+(y0-h+dy), bbr=(x+w+dx)+','+(y0+dy);
+    return {front:'M'+tl+'L'+tr+'L'+br+'L'+bl+'Z',top:'M'+tl+'L'+tr+'L'+btr+'L'+btl+'Z',side:'M'+tr+'L'+btr+'L'+bbr+'L'+br+'Z'};
+  }
+  function weekRangeLabel(i){
+    var s=new Date(START);s.setDate(START.getDate()+i*7);
+    var e=new Date(START);e.setDate(START.getDate()+Math.min(i*7+6,DAYS-1));
+    return p2(s.getDate())+'.'+p2(s.getMonth()+1)+'.–'+p2(e.getDate())+'.'+p2(e.getMonth()+1)+'.';
+  }
+
   function renderYearChart(streak,tn){
     var totalWeeks=Math.ceil(DAYS/7);
     var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
@@ -436,13 +447,16 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     if(curWeek<1){svg.innerHTML='';return}
     var wk=weeklyTotals(streak),shown=wk.slice(0,curWeek);
     var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
-    var padL=2,padR=2,plotW=400-padL-padR,gap=Math.max(3,8-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=50,y0=72;
+    var dx=7,dy=-5,padL=4,padR=16,plotW=400-padL-padR-dx,gap=Math.max(3,7-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=36,y0=92;
     var bestI=0;shown.forEach(function(v,i){if(v>shown[bestI])bestI=i});
     var parts=[];
     shown.forEach(function(v,i){
-      var h=Math.round(v/maxWk*maxH),x=padL+i*(barW+gap),y=y0-h,isBest=i===bestI&&v>0;
-      parts.push('<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(h,2)+'" rx="3" fill="'+(isBest?'var(--lime)':'rgba(255,255,255,.4)')+'"></rect>');
-      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+14)+'" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)">W'+(i+1)+'</text>');
+      var h=Math.max(2,Math.round(v/maxWk*maxH)),x=padL+i*(barW+gap),isBest=i===bestI&&v>0;
+      var f=isoFaces(x,y0,barW,h,dx,dy);
+      var top=isBest?'#EFFFBE':'rgba(255,255,255,.55)',front=isBest?'var(--lime)':'rgba(255,255,255,.4)',side=isBest?'#AFDE2E':'rgba(255,255,255,.22)';
+      parts.push('<path d="'+f.side+'" fill="'+side+'"></path><path d="'+f.top+'" fill="'+top+'"></path><path d="'+f.front+'" fill="'+front+'"></path>');
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+16)+'" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)">W'+(i+1)+'</text>');
+      if(isBest)parts.push('<text x="'+(x+barW/2+dx)+'" y="'+(y0-h+dy-6)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" style="font-family:var(--display)">'+fmtDec(v,1)+' km</text>');
     });
     svg.innerHTML=parts.join('');
   }
@@ -456,15 +470,36 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var wk=weeklyTotals(streak);
     var shown=wk.slice(0,curWeek);
     var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
-    var padL=20,padR=20,plotW=1000-padL-padR,gap=Math.max(4,10-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=160,y0=196;
+    var dx=26,dy=-16,padL=20,padR=46,plotW=1000-padL-padR-dx,gap=Math.max(4,10-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
     var lastInProgress=!(curWeek===totalWeeks&&tn>=DAYS);
-    var parts=['<line x1="'+padL+'" y1="'+y0+'" x2="'+(padL+plotW)+'" y2="'+y0+'" stroke="rgba(14,13,18,.07)" stroke-width="1"></line>'];
+    var bestI=-1,bestV=0;shown.forEach(function(v,i){var isCurI=lastInProgress&&i===shown.length-1;if(!isCurI&&v>bestV){bestV=v;bestI=i}});
+    // Bodenflaeche (Iso-Grund) unter allen Balken
+    var floor=isoFaces(padL,y0,plotW,0,dx,dy);
+    var parts=['<path d="'+floor.top+'" fill="var(--surface)" stroke="var(--line)" stroke-width="1"></path>'];
+    for(var gl=1;gl<n;gl++){
+      var gx=padL+gl*(barW+gap)-gap/2;
+      parts.push('<line x1="'+gx+'" y1="'+y0+'" x2="'+(gx+dx)+'" y2="'+(y0+dy)+'" stroke="var(--line)" stroke-width="1"></line>');
+    }
     shown.forEach(function(v,i){
-      var h=Math.round(v/maxWk*maxH),x=padL+i*(barW+gap),y=y0-h,isCur=lastInProgress&&i===shown.length-1;
-      parts.push('<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.max(h,0)+'" rx="5" fill="'+(isCur?'var(--acc-tint)':'var(--acc)')+'" stroke="'+(isCur?'var(--acc)':'none')+'" stroke-width="'+(isCur?'1.5':'0')+'" stroke-dasharray="'+(isCur?'4 3':'0')+'"></rect>');
-      parts.push('<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" font-size="15" font-weight="650" fill="var(--fg)" style="font-family:var(--display)">'+(v>0?fmtDec(v,1):'–')+'</text>');
-      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+20)+'" text-anchor="middle" font-size="12.5" fill="var(--mute)">W'+(i+1)+'</text>');
+      var h=Math.max(1,Math.round(v/maxWk*maxH)),x=padL+i*(barW+gap),isCur=lastInProgress&&i===shown.length-1,isBest=i===bestI;
+      var f=isoFaces(x,y0,barW,h,dx,dy);
+      if(isCur){
+        parts.push('<path d="'+f.side+'" fill="var(--acc-tint)"></path><path d="'+f.top+'" fill="var(--acc-tint)"></path><path d="'+f.front+'" fill="#fff" stroke="var(--acc)" stroke-width="1.5" stroke-dasharray="4 3"></path>');
+      }else{
+        var top=isBest?'#EFFFBE':'var(--r3)',front=isBest?'var(--lime)':'var(--acc)',side=isBest?'#AFDE2E':'var(--acc-ink)';
+        parts.push('<path d="'+f.side+'" fill="'+side+'"></path><path d="'+f.top+'" fill="'+top+'"></path><path d="'+f.front+'" fill="'+front+'"></path>');
+      }
+      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+26)+'" text-anchor="middle" font-size="13" fill="var(--mute)">W'+(i+1)+'</text>');
+      if(!isBest)parts.push('<text x="'+(x+barW/2)+'" y="'+(y0-h-10)+'" text-anchor="middle" font-size="14" font-weight="650" fill="var(--fg)" style="font-family:var(--display)">'+(v>0?fmtDec(v,1):'–')+'</text>');
     });
+    if(bestI>=0){
+      var bh=Math.max(1,Math.round(bestV/maxWk*maxH)),bx=padL+bestI*(barW+gap)+barW/2+dx,by=y0-bh+dy-14;
+      var bw=108,bx0=Math.min(Math.max(bx-bw/2,4),1000-bw-4);
+      parts.push('<line x1="'+bx+'" y1="'+(by+34)+'" x2="'+bx+'" y2="'+by+'" stroke="var(--lime)" stroke-width="1.5"></line>');
+      parts.push('<rect x="'+bx0+'" y="'+(by-34)+'" width="'+bw+'" height="34" rx="10" fill="var(--fg)"></rect>');
+      parts.push('<text x="'+(bx0+bw/2)+'" y="'+(by-18)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" style="font-family:var(--display)">'+fmtDec(bestV,1)+' km</text>');
+      parts.push('<text x="'+(bx0+bw/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.65)">'+weekRangeLabel(bestI)+'</text>');
+    }
     svg.innerHTML=parts.join('');
   }
 
