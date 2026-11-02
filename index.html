@@ -443,21 +443,31 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
   function renderYearChart(streak,tn){
     var totalWeeks=Math.ceil(DAYS/7);
     var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
+    var curIdx=curWeek-1,lastInProgress=curWeek>0&&!(curWeek===totalWeeks&&tn>=DAYS);
     var svg=$('year-chart');
-    if(curWeek<1){svg.innerHTML='';return}
-    var wk=weeklyTotals(streak),shown=wk.slice(0,curWeek);
+    var wk=weeklyTotals(streak),shown=wk,n=totalWeeks;
     var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
-    var dx=7,dy=-5,padL=4,padR=16,plotW=400-padL-padR-dx,gap=Math.max(3,7-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=36,y0=92;
-    var bestI=0;shown.forEach(function(v,i){if(v>shown[bestI])bestI=i});
+    var dx=7,dy=-5,padL=4,padR=16,plotW=400-padL-padR-dx,gap=Math.max(2,5-n/6),barW=(plotW-gap*(n-1))/n,maxH=36,y0=92;
+    var bestI=-1,bestV=0;shown.forEach(function(v,i){var isCurI=lastInProgress&&i===curIdx,isFuture=curWeek===0||i>curIdx;if(!isCurI&&!isFuture&&v>bestV){bestV=v;bestI=i}});
     var parts=[];
     shown.forEach(function(v,i){
-      var h=Math.max(2,Math.round(v/maxWk*maxH)),x=padL+i*(barW+gap),isBest=i===bestI&&v>0;
+      var isFuture=curWeek===0||i>curIdx,isCur=lastInProgress&&i===curIdx,isBest=i===bestI;
+      var x=padL+i*(barW+gap);
+      if(isFuture){
+        parts.push('<rect x="'+x+'" y="'+(y0-2)+'" width="'+barW+'" height="2" rx="1" fill="rgba(255,255,255,.16)"></rect>');
+        return;
+      }
+      var h=Math.max(2,Math.round(v/maxWk*maxH));
       var f=isoFaces(x,y0,barW,h,dx,dy);
-      var top=isBest?'#EFFFBE':'rgba(255,255,255,.55)',front=isBest?'var(--lime)':'rgba(255,255,255,.4)',side=isBest?'#AFDE2E':'rgba(255,255,255,.22)';
-      parts.push('<path d="'+f.side+'" fill="'+side+'"></path><path d="'+f.top+'" fill="'+top+'"></path><path d="'+f.front+'" fill="'+front+'"></path>');
-      parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+16)+'" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)">W'+(i+1)+'</text>');
+      if(isCur){
+        parts.push('<path d="'+f.side+'" fill="rgba(255,255,255,.14)"></path><path d="'+f.top+'" fill="rgba(255,255,255,.2)"></path><path d="'+f.front+'" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.6)" stroke-width="1" stroke-dasharray="3 2"></path>');
+      }else{
+        var top=isBest?'#EFFFBE':'rgba(255,255,255,.55)',front=isBest?'var(--lime)':'rgba(255,255,255,.4)',side=isBest?'#AFDE2E':'rgba(255,255,255,.22)';
+        parts.push('<path d="'+f.side+'" fill="'+side+'"></path><path d="'+f.top+'" fill="'+top+'"></path><path d="'+f.front+'" fill="'+front+'"></path>');
+      }
       if(isBest)parts.push('<text x="'+(x+barW/2+dx)+'" y="'+(y0-h+dy-6)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" style="font-family:var(--display)">'+fmtDec(v,1)+' km</text>');
     });
+    parts.unshift('<line x1="'+padL+'" y1="'+y0+'" x2="'+(padL+plotW)+'" y2="'+y0+'" stroke="rgba(255,255,255,.18)" stroke-width="1"></line>');
     svg.innerHTML=parts.join('');
   }
 
@@ -465,14 +475,13 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var totalWeeks=Math.ceil(DAYS/7);
     var curWeek=tn>=1?Math.min(totalWeeks,Math.ceil(Math.min(tn,DAYS)/7)):0;
     var svg=$('wk-chart');
-    if(curWeek<1){svg.innerHTML='';$('analyse-empty').hidden=false;return}
     $('analyse-empty').hidden=true;
     var wk=weeklyTotals(streak);
-    var shown=wk.slice(0,curWeek);
+    var shown=wk,n=totalWeeks;
+    var curIdx=curWeek-1,lastInProgress=curWeek>0&&!(curWeek===totalWeeks&&tn>=DAYS);
     var maxWk=shown.reduce(function(a,v){return Math.max(a,v)},0)||1;
-    var dx=26,dy=-16,padL=20,padR=46,plotW=1000-padL-padR-dx,gap=Math.max(4,10-shown.length/3),n=shown.length,barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
-    var lastInProgress=!(curWeek===totalWeeks&&tn>=DAYS);
-    var bestI=-1,bestV=0;shown.forEach(function(v,i){var isCurI=lastInProgress&&i===shown.length-1;if(!isCurI&&v>bestV){bestV=v;bestI=i}});
+    var dx=22,dy=-14,padL=20,padR=46,plotW=1000-padL-padR-dx,gap=Math.max(3,8-n/4),barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
+    var bestI=-1,bestV=0;shown.forEach(function(v,i){var isCurI=lastInProgress&&i===curIdx,isFuture=curWeek===0||i>curIdx;if(!isCurI&&!isFuture&&v>bestV){bestV=v;bestI=i}});
     // Bodenflaeche (Iso-Grund) unter allen Balken
     var floor=isoFaces(padL,y0,plotW,0,dx,dy);
     var parts=['<path d="'+floor.top+'" fill="var(--surface)" stroke="var(--line)" stroke-width="1"></path>'];
@@ -481,7 +490,14 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
       parts.push('<line x1="'+gx+'" y1="'+y0+'" x2="'+(gx+dx)+'" y2="'+(y0+dy)+'" stroke="var(--line)" stroke-width="1"></line>');
     }
     shown.forEach(function(v,i){
-      var h=Math.max(1,Math.round(v/maxWk*maxH)),x=padL+i*(barW+gap),isCur=lastInProgress&&i===shown.length-1,isBest=i===bestI;
+      var isFuture=curWeek===0||i>curIdx,isCur=lastInProgress&&i===curIdx,isBest=i===bestI;
+      var x=padL+i*(barW+gap);
+      if(isFuture){
+        parts.push('<rect x="'+x+'" y="'+(y0-3)+'" width="'+barW+'" height="3" rx="1.5" fill="var(--track)"></rect>');
+        parts.push('<text x="'+(x+barW/2)+'" y="'+(y0+26)+'" text-anchor="middle" font-size="12" fill="var(--deco)">W'+(i+1)+'</text>');
+        return;
+      }
+      var h=Math.max(1,Math.round(v/maxWk*maxH));
       var f=isoFaces(x,y0,barW,h,dx,dy);
       if(isCur){
         parts.push('<path d="'+f.side+'" fill="var(--acc-tint)"></path><path d="'+f.top+'" fill="var(--acc-tint)"></path><path d="'+f.front+'" fill="#fff" stroke="var(--acc)" stroke-width="1.5" stroke-dasharray="4 3"></path>');
