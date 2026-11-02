@@ -287,6 +287,7 @@ textarea{resize:vertical;line-height:1.4}
       <svg id="day-chart" viewBox="0 0 1000 300" style="width:100%;height:auto;display:block" role="img" aria-label="Kilometer pro Lauf"></svg>
       <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>Lauf</span><span><i style="background:var(--lime)"></i>längster Lauf</span><span><i style="background:var(--track)"></i>noch kein Lauf</span></div>
     </div>
+    <div class="plist" id="runlist" style="margin-top:16px"></div>
   </div></section>
   <section id="meilensteine"><div class="wrap">
     <h2>Meilensteine</h2>
@@ -630,6 +631,10 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('grid').innerHTML=g;
     renderWeekChart(streak,tn);
     renderDayChart(streak,tn);
+    $('runlist').innerHTML=streak.length?streak.slice().sort(function(a,b){return a.date<b.date?-1:1}).map(function(r,idx){
+      var d=parseIso(r.date),n=d?dayDiff(d,START)+1:0,isMs=MS.indexOf(n)>=0,isBest=n===bestDay&&bestDay>0;
+      return '<div class="prow'+(isMs?' ms':'')+'"><div class="label n">Lauf '+(idx+1)+' · Tag '+n+' · '+esc(fmtDate(d))+(isMs?' · '+esc(MSNOTE[n]):'')+(isBest?' · längster Lauf':'')+'</div><div><div class="t">'+esc(fmtKm(r.km))+' km</div><div class="note">'+(r.time_s?esc(fmtTime(r.time_s))+' · '+esc(fmtPace(r.time_s/r.km))+' /km':'ohne Zeit')+(r.hr?' · ⌀ '+r.hr+' bpm':'')+(r.city?' · '+esc([r.city,r.country].filter(Boolean).join(', ')):'')+'</div></div></div>';
+    }).join(''):'<div class="empty" style="border:0">Noch kein Lauf eingetragen.</div>';
     // Meilensteine
     $('ms').innerHTML=MS.map(function(d){
       var dt=new Date(2026,10,d),diff=dayDiff(dt,t);
