@@ -281,6 +281,12 @@ textarea{resize:vertical;line-height:1.4}
       <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>abgeschlossene Woche</span><span><i style="background:var(--acc-tint);border-color:var(--acc)"></i>laufende Woche</span><span><i style="background:var(--lime)"></i>beste Woche</span></div>
     </div>
     <div class="empty" id="analyse-empty" hidden>Noch keine Woche der Streak gelaufen.</div>
+    <h2 style="margin-top:36px">Jeder Lauf</h2>
+    <p class="sub">Jeder Tag ein Balken, dein längster Lauf in Lime.</p>
+    <div class="card reveal" style="padding:24px 20px 16px">
+      <svg id="day-chart" viewBox="0 0 1000 300" style="width:100%;height:auto;display:block" role="img" aria-label="Kilometer pro Lauf"></svg>
+      <div class="legend" style="margin-top:4px"><span><i style="background:var(--acc)"></i>Lauf</span><span><i style="background:var(--lime)"></i>längster Lauf</span><span><i style="background:var(--track)"></i>noch kein Lauf</span></div>
+    </div>
   </div></section>
   <section id="meilensteine"><div class="wrap">
     <h2>Meilensteine</h2>
@@ -519,6 +525,43 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     svg.innerHTML=parts.join('');
   }
 
+  function renderDayChart(streak,tn){
+    var svg=$('day-chart');
+    var byDay={};streak.forEach(function(r){byDay[dayDiff(parseIso(r.date),START)+1]=r});
+    var n=DAYS,vals=[];for(var di=1;di<=n;di++)vals.push(byDay[di]?byDay[di].km:0);
+    var maxV=vals.reduce(function(a,v){return Math.max(a,v)},0)||1;
+    var dx=18,dy=-11,padL=20,padR=40,plotW=1000-padL-padR-dx,gap=1,barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
+    var bestI=-1,bestV=0;vals.forEach(function(v,i){if(v>bestV){bestV=v;bestI=i}});
+    var floor=isoFaces(padL,y0,plotW,0,dx,dy);
+    var parts=['<path d="'+floor.top+'" fill="var(--surface)" stroke="var(--line)" stroke-width="1"></path>'];
+    parts.push('<line x1="'+padL+'" y1="'+y0+'" x2="'+(padL+plotW)+'" y2="'+y0+'" stroke="var(--line)" stroke-width="1"></line>');
+    vals.forEach(function(v,i){
+      var isBest=i===bestI&&v>0,x=padL+i*(barW+gap);
+      if(v<=0){
+        parts.push('<rect x="'+x+'" y="'+(y0-2)+'" width="'+Math.max(barW,1)+'" height="2" fill="var(--track)"></rect>');
+        return;
+      }
+      var h=Math.max(2,Math.round(v/maxV*maxH));
+      var f=isoFaces(x,y0,barW,h,dx,dy);
+      var top=isBest?'#EFFFBE':'var(--r3)',front=isBest?'var(--lime)':'var(--acc)',side=isBest?'#AFDE2E':'var(--acc-ink)';
+      parts.push('<path d="'+f.side+'" fill="'+side+'"></path><path d="'+f.top+'" fill="'+top+'"></path><path d="'+f.front+'" fill="'+front+'"></path>');
+    });
+    for(var t=1;t<=n;t+=10){
+      var tx=padL+(t-1)*(barW+gap)+barW/2;
+      parts.push('<text x="'+tx+'" y="'+(y0+26)+'" text-anchor="middle" font-size="12" fill="var(--mute)">Tag '+t+'</text>');
+    }
+    if(bestI>=0){
+      var bh=Math.max(2,Math.round(bestV/maxV*maxH)),bx=padL+bestI*(barW+gap)+barW/2+dx,by=y0-bh+dy-14;
+      var bw=118,bx0=Math.min(Math.max(bx-bw/2,4),1000-bw-4);
+      var bd=new Date(START);bd.setDate(START.getDate()+bestI);
+      parts.push('<line x1="'+bx+'" y1="'+(by+34)+'" x2="'+bx+'" y2="'+by+'" stroke="var(--lime)" stroke-width="1.5"></line>');
+      parts.push('<rect x="'+bx0+'" y="'+(by-34)+'" width="'+bw+'" height="34" rx="10" fill="var(--fg)"></rect>');
+      parts.push('<text x="'+(bx0+bw/2)+'" y="'+(by-18)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" style="font-family:var(--display)">'+fmtDec(bestV,1)+' km</text>');
+      parts.push('<text x="'+(bx0+bw/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.65)">Tag '+(bestI+1)+' · '+esc(fmtDate(bd))+'</text>');
+    }
+    svg.innerHTML=parts.join('');
+  }
+
   function setupReveal(){
     var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var els=document.querySelectorAll('.reveal:not(.show)');
@@ -586,6 +629,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     }
     $('grid').innerHTML=g;
     renderWeekChart(streak,tn);
+    renderDayChart(streak,tn);
     // Meilensteine
     $('ms').innerHTML=MS.map(function(d){
       var dt=new Date(2026,10,d),diff=dayDiff(dt,t);
