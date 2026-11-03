@@ -531,7 +531,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     var byDay={};streak.forEach(function(r){byDay[dayDiff(parseIso(r.date),START)+1]=r});
     var n=DAYS,vals=[];for(var di=1;di<=n;di++)vals.push(byDay[di]?byDay[di].km:0);
     var maxV=vals.reduce(function(a,v){return Math.max(a,v)},0)||1;
-    var dx=18,dy=-11,padL=20,padR=40,plotW=1000-padL-padR-dx,gap=1,barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
+    var dx=4,dy=-3,padL=20,padR=40,plotW=1000-padL-padR-dx,gap=1,barW=(plotW-gap*(n-1))/n,maxH=170,y0=236;
     var bestI=-1,bestV=0;vals.forEach(function(v,i){if(v>bestV){bestV=v;bestI=i}});
     var floor=isoFaces(padL,y0,plotW,0,dx,dy);
     var parts=['<path d="'+floor.top+'" fill="var(--surface)" stroke="var(--line)" stroke-width="1"></path>'];
