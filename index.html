@@ -672,7 +672,7 @@ function sbCall(p){return p.then(function(res){if(res&&res.error)throw res.error
     $('eintrag').hidden=!show&&state.ready;
     // Kontakt
     var ce=MAIL_RE.test(state.contact||'')?state.contact:'';
-    $('c-text').textContent=ce?'Anfragen für Sponsoring und Zusammenarbeit per E-Mail an '+ce+'.':(show?'Trag unten die E-Mail-Adresse ein, an die Anfragen gehen sollen.':'Kontakt folgt.');
+    $('c-text').textContent=ce?'Anfragen für Sponsoring und Zusammenarbeit per E-Mail an '+ce.replace('@',' (at) ')+'.':(show?'Trag unten die E-Mail-Adresse ein, an die Anfragen gehen sollen.':'Kontakt folgt.');
     $('c-mail').hidden=!ce;if(ce)$('c-mail').setAttribute('href','mailto:'+ce+'?subject='+encodeURIComponent('Sponsoring 100 Tage 10 km'));
     $('cf').hidden=!show;
     if(document.activeElement!==$('c-email'))$('c-email').value=ce;
